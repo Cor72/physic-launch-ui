@@ -7,23 +7,23 @@
 .glow {
   position: absolute;
   z-index: -1;
-  top: 0;
+  top: -2rem;
   left: 50%;
-  width: min(150vw, 100rem);
-  height: clamp(28rem, 58vw, 50rem);
+  width: min(180vw, 120rem);
+  height: clamp(36rem, 72vw, 62rem);
   transform: translate(-50%, -50%);
   background:
     radial-gradient(
       ellipse at 50% 55%,
-      rgb(255 202 112 / 20%) 0%,
-      rgb(255 216 153 / 10%) 32%,
-      rgb(255 228 181 / 4%) 48%,
-      transparent 70%
+      rgb(255 202 112 / 40%) 0%,
+      rgb(255 216 153 / 22%) 34%,
+      rgb(255 228 181 / 9%) 54%,
+      transparent 76%
     ),
     radial-gradient(
       ellipse at 50% 65%,
-      rgb(245 168 90 / 8%) 0%,
-      transparent 65%
+      rgb(245 168 90 / 14%) 0%,
+      transparent 72%
     );
   pointer-events: none;
 }
