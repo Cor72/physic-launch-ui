@@ -18,8 +18,10 @@ interface HeroButtonProps extends Omit<LinkButtonProps, "children"> {
 }
 
 interface HeroProps {
-  title?: string;
-  description?: string;
+  title1?: string;
+  title2?: string;
+  description1?: string;
+  description2?: string;
   mockup?: ReactNode | false;
   badge?: ReactNode | false;
   buttons?: HeroButtonProps[] | false;
@@ -105,8 +107,9 @@ function HeroShowcase() {
 }
 
 export default function Hero({
-  title = "Give your big idea the design it deserves",
-  description = "Professionally designed blocks and templates built with React, Shadcn/ui and Tailwind that will help your product stand out.",
+  title1 = "悟言视界",
+  title2 = "AI动态题目可视化学习平台",
+  description1 = "上传题目，感受可播放、可调参数、显示受力与轨迹的交互场景，建立更清晰的物理过程，更高效地讲授与讲解复杂题目",
   mockup,
   badge = DEFAULT_HERO_BADGE,
   buttons = DEFAULT_HERO_BUTTONS,
@@ -123,10 +126,13 @@ export default function Hero({
         <div className="relative z-20 flex max-w-3xl flex-col items-start gap-6 text-left sm:gap-8">
           {badge !== false && badge}
           <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
-            {title}
+            {title1}
+          </h1>
+          <h1 className="text-foreground motion-safe:animate-appear font-semibold text-3xl leading-tight tracking-tight sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
+            {title2}
           </h1>
           <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
-            {description}
+            {description1}
           </p>
           {buttons !== false && buttons.length > 0 && (
             <div className="motion-safe:animate-appear flex flex-wrap justify-start gap-4 motion-safe:opacity-0 motion-safe:delay-300">

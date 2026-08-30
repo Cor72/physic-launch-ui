@@ -13,7 +13,7 @@ import {
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
-  const selectedTheme = theme ?? "dark";
+  const selectedTheme = theme ?? "light";
 
   return (
     <DropdownMenu>

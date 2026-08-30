@@ -67,14 +67,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="dark"
-      style={{ colorScheme: "dark" }}
+      className="light"
+      style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
       <body className={`${inter.variable} bg-background font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
