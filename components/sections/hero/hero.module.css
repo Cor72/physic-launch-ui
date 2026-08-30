@@ -1,0 +1,97 @@
+.visual {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.showcase {
+  position: relative;
+}
+
+/* The reference combines rotation with skew, rather than a plain rotation.
+   Keep this transform on a wrapper so the entrance animation cannot replace it. */
+.preview {
+  position: relative;
+  z-index: 10;
+  --preview-shift: 0%;
+  transform: translateX(var(--preview-shift)) rotate(-24deg) skewY(12deg);
+}
+
+.previewFrame {
+  box-shadow: -12px 16px 48px var(--shadow-strong);
+}
+
+.preview:nth-child(1) {
+  left: -24%;
+  height: 24px;
+  --entrance-delay: 500ms;
+}
+
+.preview:nth-child(2) {
+  height: 24px;
+  --entrance-delay: 1000ms;
+}
+
+.preview:nth-child(3) {
+  left: 32%;
+  --entrance-delay: 1500ms;
+}
+
+@media (min-width: 640px) {
+  .showcase {
+    padding-inline: 6rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .preview {
+    transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1) 200ms;
+  }
+
+  .previewFrame {
+    animation: preview-appear 600ms ease-out var(--entrance-delay) both;
+  }
+}
+
+/* One shared hover target moves all three layers together. Transform-only
+   translation matches the reference's left offsets without animating layout. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .showcase:hover .preview {
+    transform: translateX(var(--preview-shift)) rotate(-12deg) skewY(6deg);
+  }
+
+  .showcase:hover .preview:nth-child(1) {
+    --preview-shift: -8%;
+  }
+
+  .showcase:hover .preview:nth-child(3) {
+    --preview-shift: 16%;
+  }
+}
+
+@keyframes preview-appear {
+  from {
+    opacity: 0;
+    filter: blur(0.5rem);
+    transform: translateY(1rem);
+  }
+
+  50% {
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* Fade only the artwork so the heading and buttons stay fully visible. */
+.visual::after {
+  position: absolute;
+  z-index: 20;
+  inset: 45% -50vw 0;
+  background: linear-gradient(to bottom, transparent, var(--background));
+  pointer-events: none;
+  content: "";
+}

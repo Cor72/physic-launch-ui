@@ -11,6 +11,7 @@ import { LinkButton, type LinkButtonProps } from "../../ui/link-button";
 import { Mockup, MockupFrame } from "../../ui/mockup";
 import Screenshot from "../../ui/screenshot";
 import { Section } from "../../ui/section";
+import styles from "./hero.module.css";
 
 interface HeroButtonProps extends Omit<LinkButtonProps, "children"> {
   text: string;
@@ -40,7 +41,7 @@ const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
 ];
 
 const DEFAULT_HERO_BADGE = (
-  <Badge variant="outline" className="animate-appear">
+  <Badge variant="outline" className="motion-safe:animate-appear flex-wrap">
     <span className="text-muted-foreground">
       New version of Launch UI is out!
     </span>
@@ -51,22 +52,62 @@ const DEFAULT_HERO_BADGE = (
   </Badge>
 );
 
-const DEFAULT_HERO_MOCKUP = (
-  <Screenshot
-    srcLight="/dashboard-light.png"
-    srcDark="/dashboard-dark.png"
-    alt="Launch UI app screenshot"
-    width={1248}
-    height={765}
-    loading="eager"
-    className="w-full"
-  />
-);
+const HERO_PREVIEWS = [
+  {
+    name: "tasks",
+    srcLight: "/app-tasks-light.png",
+    srcDark: "/app-tasks-dark.png",
+    alt: "Launch UI task management page preview",
+    height: 1640,
+  },
+  {
+    name: "components",
+    srcLight: "/examples-light.png",
+    srcDark: "/examples-dark.png",
+    alt: "Launch UI components and widgets page preview",
+    height: 1642,
+  },
+  {
+    name: "dashboard",
+    srcLight: "/dashboard-light.png",
+    srcDark: "/dashboard-dark.png",
+    alt: "Launch UI analytics dashboard page preview",
+    height: 1640,
+  },
+];
+
+function HeroShowcase() {
+  return (
+    <div className={styles.showcase}>
+      {HERO_PREVIEWS.map((preview) => (
+        <div key={preview.name} className={styles.preview}>
+          <MockupFrame className={styles.previewFrame} size="small">
+            <Mockup
+              type="responsive"
+              className="bg-background w-full rounded-xl border-0"
+            >
+              <Screenshot
+                srcLight={preview.srcLight}
+                srcDark={preview.srcDark}
+                alt={preview.alt}
+                width={2680}
+                height={preview.height}
+                loading="eager"
+                sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1312px) calc(100vw - 224px), 1088px"
+                className="h-auto w-full"
+              />
+            </Mockup>
+          </MockupFrame>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Hero({
   title = "Give your big idea the design it deserves",
   description = "Professionally designed blocks and templates built with React, Shadcn/ui and Tailwind that will help your product stand out.",
-  mockup = DEFAULT_HERO_MOCKUP,
+  mockup,
   badge = DEFAULT_HERO_BADGE,
   buttons = DEFAULT_HERO_BUTTONS,
   className,
@@ -74,21 +115,21 @@ export default function Hero({
   return (
     <Section
       className={cn(
-        "fade-bottom overflow-hidden pb-0 sm:pb-0 md:pb-0",
+        "relative isolate overflow-hidden pt-8 pb-0 sm:pt-12 sm:pb-0 md:pt-12 md:pb-0",
         className,
       )}
     >
-      <div className="max-w-container mx-auto flex flex-col gap-12 pt-16 sm:gap-24">
-        <div className="flex flex-col items-center gap-6 text-center sm:gap-12">
+      <div className="max-w-container mx-auto">
+        <div className="relative z-20 flex max-w-3xl flex-col items-start gap-6 text-left sm:gap-8">
           {badge !== false && badge}
-          <h1 className="animate-appear from-foreground to-foreground dark:to-muted-foreground relative z-10 inline-block bg-linear-to-r bg-clip-text text-4xl leading-tight font-semibold text-balance text-transparent drop-shadow-2xl sm:text-6xl sm:leading-tight md:text-8xl md:leading-tight">
+          <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
             {title}
           </h1>
-          <p className="text-md animate-appear text-muted-foreground relative z-10 max-w-[740px] font-medium text-balance opacity-0 delay-100 sm:text-xl">
+          <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
             {description}
           </p>
           {buttons !== false && buttons.length > 0 && (
-            <div className="animate-appear relative z-10 flex justify-center gap-4 opacity-0 delay-300">
+            <div className="motion-safe:animate-appear flex flex-wrap justify-start gap-4 motion-safe:opacity-0 motion-safe:delay-300">
               {buttons.map((button) => (
                 <LinkButton
                   key={`${button.href}-${button.text}`}
@@ -103,12 +144,17 @@ export default function Hero({
               ))}
             </div>
           )}
-          {mockup !== false && (
-            <div className="relative w-full pt-12">
-              <MockupFrame
-                className="animate-appear opacity-0 delay-700"
-                size="small"
-              >
+        </div>
+        {mockup !== false && (
+          <div className={styles.visual}>
+            <Glow
+              variant="top"
+              className="pointer-events-none -z-10 opacity-60"
+            />
+            {mockup === undefined ? (
+              <HeroShowcase />
+            ) : (
+              <MockupFrame className="relative my-12" size="small">
                 <Mockup
                   type="responsive"
                   className="bg-background/90 w-full rounded-xl border-0"
@@ -116,13 +162,9 @@ export default function Hero({
                   {mockup}
                 </Mockup>
               </MockupFrame>
-              <Glow
-                variant="top"
-                className="animate-appear-zoom opacity-0 delay-1000"
-              />
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </Section>
   );

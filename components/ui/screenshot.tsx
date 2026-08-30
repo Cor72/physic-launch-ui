@@ -9,6 +9,7 @@ interface ScreenshotProps {
   width: number;
   height: number;
   loading?: ImageProps["loading"];
+  sizes?: ImageProps["sizes"];
   className?: string;
 }
 
@@ -19,6 +20,7 @@ export default function Screenshot({
   width,
   height,
   loading,
+  sizes,
   className,
 }: ScreenshotProps) {
   if (!srcDark) {
@@ -29,6 +31,7 @@ export default function Screenshot({
         width={width}
         height={height}
         loading={loading}
+        sizes={sizes}
         className={className}
         unoptimized={srcLight.endsWith(".svg")}
       />
@@ -43,6 +46,7 @@ export default function Screenshot({
         width={width}
         height={height}
         loading={loading}
+        sizes={sizes}
         className={cn(className, "block dark:hidden")}
         unoptimized={srcLight.endsWith(".svg")}
       />
@@ -52,6 +56,7 @@ export default function Screenshot({
         width={width}
         height={height}
         loading={loading}
+        sizes={sizes}
         className={cn(className, "hidden dark:block")}
         unoptimized={srcDark.endsWith(".svg")}
       />
