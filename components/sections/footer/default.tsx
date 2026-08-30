@@ -34,36 +34,37 @@ interface FooterProps {
 
 export default function FooterSection({
   logo = <LaunchUI />,
-  name = "Launch UI",
+  name = siteConfig.name,
   columns = [
     {
-      title: "Product",
+      title: "探索平台",
       links: [
-        { text: "Changelog", href: siteConfig.url },
-        { text: "Documentation", href: siteConfig.url },
+        { text: "动态演示", href: siteConfig.getStartedUrl },
+        { text: "核心功能", href: siteConfig.links.features },
+        { text: "题型模型", href: siteConfig.links.models },
       ],
     },
     {
-      title: "Company",
+      title: "学习与教学",
       links: [
-        { text: "About", href: siteConfig.url },
-        { text: "Careers", href: siteConfig.url },
-        { text: "Blog", href: siteConfig.url },
+        { text: "学生自主学习", href: siteConfig.links.features },
+        { text: "教师课堂讲授", href: siteConfig.links.teachers },
+        { text: "会员方案", href: siteConfig.links.pricing },
       ],
     },
     {
-      title: "Contact",
+      title: "了解更多",
       links: [
-        { text: "Discord", href: siteConfig.url },
-        { text: "Twitter", href: siteConfig.url },
-        { text: "GitHub", href: siteConfig.links.github },
+        { text: "项目介绍", href: siteConfig.homeUrl },
+        { text: "常见问题", href: siteConfig.links.faq },
+        { text: "功能规划", href: siteConfig.links.features },
       ],
     },
   ],
-  copyright = "© 2026 Mikołaj Dobrucki. All rights reserved",
+  copyright = "© 2026 悟言视界 · 让物理过程看得见",
   policies = [
-    { text: "Privacy Policy", href: siteConfig.url },
-    { text: "Terms of Service", href: siteConfig.url },
+    { text: "数据与隐私说明", href: siteConfig.links.faq },
+    { text: "使用说明", href: siteConfig.links.faq },
   ],
   showModeToggle = true,
   className,
@@ -78,6 +79,9 @@ export default function FooterSection({
                 {logo}
                 <h3 className="text-xl font-bold">{name}</h3>
               </div>
+              <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
+                把抽象的物理题，变成看得见、能探索的动态过程。
+              </p>
             </FooterColumn>
             {columns.map((column) => (
               <FooterColumn key={column.title}>
@@ -96,7 +100,7 @@ export default function FooterSection({
           </FooterContent>
           <FooterBottom>
             <div>{copyright}</div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               {policies.map((policy) => (
                 <a key={`${policy.href}-${policy.text}`} href={policy.href}>
                   {policy.text}

@@ -48,80 +48,75 @@ interface NavigationProps {
 export default function Navigation({
   menuItems = [
     {
-      title: "Getting started",
+      title: "认识平台",
       content: "default",
     },
     {
-      title: "Components",
+      title: "核心功能",
       content: "components",
     },
     {
-      title: "Documentation",
+      title: "会员方案",
       isLink: true,
-      href: siteConfig.getStartedUrl,
+      href: siteConfig.links.pricing,
     },
   ],
   components = [
     {
-      title: "Alert Dialog",
-      href: `${siteConfig.url}/docs/primitives/alert-dialog`,
-      description:
-        "A modal dialog that interrupts the user with important content and expects a response.",
+      title: "拍照识题",
+      href: siteConfig.links.features,
+      description: "从图片或文字中提取物体、已知条件与待求内容。",
     },
     {
-      title: "Hover Card",
-      href: `${siteConfig.url}/docs/primitives/hover-card`,
-      description:
-        "For sighted users to preview content available behind a link.",
+      title: "过程拆解",
+      href: siteConfig.links.features,
+      description: "按运动阶段梳理题目，把复杂情境逐步展开。",
     },
     {
-      title: "Progress",
-      href: `${siteConfig.url}/docs/primitives/progress`,
-      description:
-        "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+      title: "动态演示",
+      href: siteConfig.getStartedUrl,
+      description: "播放、暂停与回看，观察物体怎样运动。",
     },
     {
-      title: "Scroll Area",
-      href: `${siteConfig.url}/docs/primitives/scroll-area`,
-      description: "A scrollable container with custom scrollbars.",
+      title: "受力与轨迹",
+      href: siteConfig.links.features,
+      description: "让速度方向、受力变化和运动轨迹同步呈现。",
     },
     {
-      title: "Tabs",
-      href: `${siteConfig.url}/docs/primitives/tabs`,
-      description:
-        "A set of layered sections of content, known as tab panels, that are displayed one at a time.",
+      title: "参数调节",
+      href: siteConfig.links.features,
+      description: "改变初速度、摩擦系数等条件，探索运动结果。",
     },
     {
-      title: "Tooltip",
-      href: `${siteConfig.url}/docs/primitives/tooltip`,
-      description:
-        "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+      title: "教师讲授",
+      href: siteConfig.links.teachers,
+      description: "围绕关键节点讲解，让课堂上的物理过程更清楚。",
     },
   ],
   logo = <LaunchUI />,
-  logoTitle = "Launch UI",
-  logoDescription = "Landing page template built with React, Shadcn/ui and Tailwind that you can copy/paste into your project.",
+  logoTitle = siteConfig.name,
+  logoDescription = "把看不懂的物理题，变成看得见、能操作的动态过程。",
   logoHref = siteConfig.getStartedUrl,
   introItems = [
     {
-      title: "Introduction",
+      title: "观看演示",
       href: siteConfig.getStartedUrl,
-      description: "Reusable components built using Radix UI and Tailwind CSS.",
+      description: "从一道圆轨道题，了解文字到动态场景的表达方式。",
     },
     {
-      title: "Installation",
-      href: siteConfig.getStartedUrl,
-      description: "How to install dependencies and structure your app.",
+      title: "题型模型",
+      href: siteConfig.links.models,
+      description: "首期聚焦五类适合动态展示的高频物理模型。",
     },
     {
-      title: "Typography",
-      href: siteConfig.getStartedUrl,
-      description: "Styles for headings, paragraphs, and lists.",
+      title: "使用说明",
+      href: siteConfig.links.faq,
+      description: "了解原型进度、学习方式与后续功能规划。",
     },
   ],
 }: NavigationProps) {
   return (
-    <NavigationMenu className="hidden md:flex">
+    <NavigationMenu aria-label="主导航" className="hidden md:flex">
       <NavigationMenuList>
         {menuItems.map((item) => (
           <NavigationMenuItem key={item.title}>

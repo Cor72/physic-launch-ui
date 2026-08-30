@@ -15,73 +15,79 @@ interface PricingProps {
 
 const DEFAULT_PRICING_PLANS: PricingColumnProps[] = [
   {
-    name: "Free",
-    description: "For everyone starting out on a website for their big idea",
-    price: 0,
-    priceNote: "Free and open-source forever. Get started now.",
+    name: "基础体验",
+    description: "适合初次尝试动态物理学习的学生与老师",
+    price: siteConfig.pricing.free,
+    billingPeriod: "免费体验",
+    priceNote: "先观察示例场景，了解动态学习的方式。",
     cta: {
       variant: "glow",
-      label: "Get started for free",
+      label: "观看免费演示",
       href: siteConfig.getStartedUrl,
     },
     features: [
-      "1 website template",
-      "9 blocks and sections",
-      "4 custom animations",
+      "题目与动态场景示例",
+      "基础播放、暂停与回看",
+      "了解首期五类模型规划",
     ],
     variant: "default",
-    className: "hidden lg:flex",
   },
   {
-    name: "Pro",
+    name: "月度会员",
     icon: <User className="size-4" />,
-    description: "For early-stage founders, solopreneurs and indie devs",
-    price: 99,
-    priceNote: "Lifetime access. Free updates. No recurring fees.",
+    description: "适合阶段性复习、专题练习与日常备课",
+    price: siteConfig.pricing.monthly,
+    billingPeriod: "/月",
+    priceNote: "会员权益为规划示例，当前暂未开放购买。",
     cta: {
-      variant: "default",
-      label: "Get all-access",
-      href: siteConfig.pricing.pro,
+      variant: "white",
+      label: "了解月度方案",
+      href: siteConfig.links.faq,
     },
     features: [
-      `${siteConfig.stats.templates} templates`,
-      `${siteConfig.stats.sections} blocks and sections`,
-      `${siteConfig.stats.illustrations} illustrations`,
-      `${siteConfig.stats.animations} custom animations`,
+      "规划支持拍照与文字识题",
+      "可调参数的题目专属场景",
+      "受力、速度与轨迹展示",
+      "学习记录与关键节点回顾",
     ],
     variant: "glow-brand",
   },
   {
-    name: "Pro Team",
+    name: "年度会员",
     icon: <Users className="size-4" />,
-    description: "For teams and agencies working on cool products together",
-    price: 499,
-    priceNote: "Lifetime access. Free updates. No recurring fees.",
+    description: "适合持续学习、系统复习与长期教学使用",
+    price: siteConfig.pricing.yearly,
+    billingPeriod: "/年",
+    promotionText: `较连续月付一年节省 ${siteConfig.pricing.monthly * 12 - siteConfig.pricing.yearly} 元`,
+    priceNote: `折合每月 ${siteConfig.pricing.yearly / 12} 元，规划权益与月度会员一致。`,
     cta: {
-      variant: "default",
-      label: "Get all-access for your team",
-      href: siteConfig.pricing.team,
+      variant: "white",
+      label: "了解年度方案",
+      href: siteConfig.links.faq,
     },
     features: [
-      "All the templates, components and sections available for your entire team",
+      "包含月度会员全部规划权益",
+      "覆盖一整年的学习与复习",
+      "持续扩充的物理模型库",
+      "教师讲授与课堂演示功能规划",
     ],
     variant: "glow",
   },
 ];
 
 export default function Pricing({
-  title = "Build your dream landing page, today.",
-  description = "Get lifetime access to all the components. No recurring fees. Just simple, transparent pricing.",
+  title = "选择适合自己的学习节奏",
+  description = "先从免费演示开始，再选择月度或年度会员。以下权益为首版规划，当前页面仅展示方案，暂未开放购买。",
   plans = DEFAULT_PRICING_PLANS,
   className = "",
 }: PricingProps) {
   return (
-    <Section className={cn(className)}>
+    <Section id="pricing" className={cn(className)}>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-12">
         {(title || description) && (
           <div className="flex flex-col items-center gap-4 px-4 text-center sm:gap-8">
             {title && (
-              <h2 className="text-3xl leading-tight font-semibold sm:text-5xl sm:leading-tight">
+              <h2 className="text-3xl leading-tight font-semibold text-balance sm:text-5xl sm:leading-tight">
                 {title}
               </h2>
             )}
@@ -101,6 +107,7 @@ export default function Pricing({
                 icon={plan.icon}
                 description={plan.description}
                 price={plan.price}
+                billingPeriod={plan.billingPeriod}
                 originalPrice={plan.originalPrice}
                 promotionText={plan.promotionText}
                 priceNote={plan.priceNote}

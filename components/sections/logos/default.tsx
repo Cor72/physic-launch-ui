@@ -1,12 +1,14 @@
+import {
+  MagnetIcon,
+  MoveUpRightIcon,
+  OrbitIcon,
+  TrendingDownIcon,
+  WavesIcon,
+} from "lucide-react";
 import { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
 
-import Figma from "../../logos/figma";
-import React from "../../logos/react";
-import ShadcnUi from "../../logos/shadcn-ui";
-import Tailwind from "../../logos/tailwind";
-import TypeScript from "../../logos/typescript";
 import { Badge } from "../../ui/badge";
 import Logo from "../../ui/logo";
 import { Section } from "../../ui/section";
@@ -19,41 +21,23 @@ interface LogosProps {
 }
 
 export default function Logos({
-  title = "Built with industry-standard tools and best practices",
+  title = "从高频题型开始，看清每一个运动过程",
   badge = (
     <Badge variant="outline" className="border-brand/30 text-brand">
-      Last updated: {siteConfig.stats.updated}
+      首期规划 · {siteConfig.stats.models} 类重点模型
     </Badge>
   ),
   logos = [
-    <Logo key="figma" image={Figma} name="Figma" />,
-    <Logo
-      key="react"
-      image={React}
-      name="React"
-      version="19.2.7"
-      badge="New"
-    />,
-    <Logo
-      key="typescript"
-      image={TypeScript}
-      name="TypeScript"
-      version="6.0.3"
-      badge="New"
-    />,
-    <Logo
-      key="shadcn"
-      image={ShadcnUi}
-      name="Shadcn/ui"
-      version="4.11.0"
-      badge="New"
-    />,
-    <Logo key="tailwind" image={Tailwind} name="Tailwind" version="4.2.1" />,
+    <Logo key="projectile" image={MoveUpRightIcon} name="平抛运动" />,
+    <Logo key="incline" image={TrendingDownIcon} name="斜面运动" />,
+    <Logo key="circular" image={OrbitIcon} name="圆周运动" />,
+    <Logo key="spring" image={WavesIcon} name="弹簧模型" />,
+    <Logo key="particle" image={MagnetIcon} name="带电粒子" />,
   ],
   className,
 }: LogosProps) {
   return (
-    <Section className={className}>
+    <Section id="models" className={className}>
       <div className="max-w-container mx-auto flex flex-col items-center gap-8 text-center">
         <div className="flex flex-col items-center gap-6">
           {badge !== false && badge}

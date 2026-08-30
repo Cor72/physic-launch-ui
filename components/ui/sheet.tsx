@@ -86,12 +86,12 @@ function SheetContent({
         {...props}
       >
         {!sheetContentHasAccessibleTitle(children) && (
-          <SheetPrimitive.Title className="sr-only">Menu</SheetPrimitive.Title>
+          <SheetPrimitive.Title className="sr-only">菜单</SheetPrimitive.Title>
         )}
         {children}
         <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-6 right-6 z-[100] rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
           <XIcon className="size-5" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">关闭</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
     </SheetPortal>

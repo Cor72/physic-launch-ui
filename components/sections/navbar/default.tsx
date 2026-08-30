@@ -16,7 +16,13 @@ import {
   NavbarRight,
 } from "../../ui/navbar";
 import Navigation from "../../ui/navigation";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../../ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "../../ui/sheet";
 
 interface NavbarLink {
   text: string;
@@ -45,18 +51,21 @@ interface NavbarProps {
 
 export default function Navbar({
   logo = <LaunchUI />,
-  name = "Launch UI",
-  homeUrl = siteConfig.url,
+  name = siteConfig.name,
+  homeUrl = siteConfig.homeUrl,
   mobileLinks = [
-    { text: "Getting Started", href: siteConfig.url },
-    { text: "Components", href: siteConfig.url },
-    { text: "Documentation", href: siteConfig.url },
+    { text: "动态演示", href: siteConfig.getStartedUrl },
+    { text: "核心功能", href: siteConfig.links.features },
+    { text: "题型模型", href: siteConfig.links.models },
+    { text: "会员方案", href: siteConfig.links.pricing },
+    { text: "教师使用", href: siteConfig.links.teachers },
+    { text: "常见问题", href: siteConfig.links.faq },
   ],
   actions = [
-    { text: "Sign in", href: siteConfig.url, isButton: false },
+    { text: "常见问题", href: siteConfig.links.faq, isButton: false },
     {
-      text: "Get Started",
-      href: siteConfig.url,
+      text: "观看演示",
+      href: siteConfig.getStartedUrl,
       isButton: true,
       variant: "white",
     },
@@ -117,11 +126,11 @@ export default function Navbar({
                   className="shrink-0 lg:hidden"
                 >
                   <Menu className="size-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
+                  <span className="sr-only">打开导航菜单</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">
-                <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+                <SheetTitle className="sr-only">导航菜单</SheetTitle>
                 <nav className="grid gap-6 text-lg font-medium">
                   <a
                     href={homeUrl}
@@ -130,13 +139,14 @@ export default function Navbar({
                     <span>{name}</span>
                   </a>
                   {mobileLinks.map((link) => (
-                    <a
-                      key={`${link.href}-${link.text}`}
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      {link.text}
-                    </a>
+                    <SheetClose key={`${link.href}-${link.text}`} asChild>
+                      <a
+                        href={link.href}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        {link.text}
+                      </a>
+                    </SheetClose>
                   ))}
                 </nav>
               </SheetContent>

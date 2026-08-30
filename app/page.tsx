@@ -11,7 +11,10 @@ import { LayoutLines } from "../components/ui/layout-lines";
 
 export default function Home() {
   return (
-    <main className="bg-background text-foreground min-h-screen w-full">
+    <main
+      id="home"
+      className="bg-background text-foreground min-h-screen w-full"
+    >
       <LayoutLines />
       <Navbar />
       <Hero />

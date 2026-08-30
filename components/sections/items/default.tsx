@@ -1,12 +1,12 @@
 import {
-  BlocksIcon,
-  EclipseIcon,
-  FastForwardIcon,
-  LanguagesIcon,
-  MonitorSmartphoneIcon,
-  RocketIcon,
-  ScanFaceIcon,
-  SquarePenIcon,
+  CameraIcon,
+  FolderOpenIcon,
+  LightbulbIcon,
+  MoveUpRightIcon,
+  PlayCircleIcon,
+  PresentationIcon,
+  SlidersHorizontalIcon,
+  SplitIcon,
 } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -27,58 +27,63 @@ interface ItemsProps {
 
 const DEFAULT_ITEMS: ItemProps[] = [
   {
-    title: "Accessibility first",
-    description: "Fully WCAG 2.0 compliant, made with best a11y practices",
-    icon: <ScanFaceIcon className="size-5 stroke-1" />,
+    title: "拍照识题",
+    description: "上传图片或输入文字，提取物体、已知条件与待求内容。",
+    icon: <CameraIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Responsive design",
-    description: "Looks and works great on any device and screen size",
-    icon: <MonitorSmartphoneIcon className="size-5 stroke-1" />,
+    title: "过程拆解",
+    description: "把复杂情境拆成多个阶段，理清先后顺序与关键节点。",
+    icon: <SplitIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Light and dark mode",
-    description: "Seamless switching between color schemes, 6 themes included",
-    icon: <EclipseIcon className="size-5 stroke-1" />,
+    title: "动态演示",
+    description: "播放、暂停与回看，在关键时刻停下来观察物体的运动。",
+    icon: <PlayCircleIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Easy to customize",
-    description: "Flexible options to match your product or brand",
-    icon: <BlocksIcon className="size-5 stroke-1" />,
+    title: "物理量可视化",
+    description: "同步观察速度、受力与轨迹，联系运动现象和物理规律。",
+    icon: <MoveUpRightIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Top-level performance",
-    description: "Made for lightning-fast load times and smooth interactions",
-    icon: <FastForwardIcon className="size-5 stroke-1" />,
+    title: "参数调节",
+    description: "改变初速度、质量或摩擦系数，比较不同条件下的结果。",
+    icon: <SlidersHorizontalIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Production ready",
-    description: "Thoroughly tested and launch-prepared",
-    icon: <RocketIcon className="size-5 stroke-1" />,
+    title: "教师讲授",
+    description: "按阶段展开情境，在关键位置讲解，减少反复画图的负担。",
+    icon: <PresentationIcon className="size-5 stroke-1" />,
   },
   {
-    title: "Made for localization",
-    description: "Easy to implement support for multiple languages and regions",
-    icon: <LanguagesIcon className="size-5 stroke-1" />,
+    title: "分层启发",
+    description: "先观察情境，再查看受力与提示，为学生保留独立思考空间。",
+    icon: <LightbulbIcon className="size-5 stroke-1" />,
   },
   {
-    title: "CMS friendly",
-    description: "Built to work with any headless content management system",
-    icon: <SquarePenIcon className="size-5 stroke-1" />,
+    title: "模型积累",
+    description: "逐步扩充题型模型与学习记录，让每次探索都能回顾复用。",
+    icon: <FolderOpenIcon className="size-5 stroke-1" />,
   },
 ];
 
 export default function Items({
-  title = "Everything you need. Nothing you don't.",
+  title = "把解题过程，一步步看清楚",
   items = DEFAULT_ITEMS,
   className,
 }: ItemsProps) {
   return (
-    <Section className={className}>
+    <Section id="features" className={className}>
       <div className="max-w-container mx-auto flex flex-col items-center gap-6 sm:gap-20">
-        <h2 className="max-w-[560px] text-center text-3xl leading-tight font-semibold sm:text-5xl sm:leading-tight">
-          {title}
-        </h2>
+        <div className="flex max-w-[640px] flex-col gap-4 text-center">
+          <h2 className="text-3xl leading-tight font-semibold sm:text-5xl sm:leading-tight">
+            {title}
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            围绕题意理解、物理计算与交互探索逐步完善。以下为核心功能规划，当前可先观看题目与动态场景的示例演示。
+          </p>
+        </div>
         {items !== false && items.length > 0 && (
           <div className="grid auto-rows-fr grid-cols-2 gap-0 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {items.map((item) => (

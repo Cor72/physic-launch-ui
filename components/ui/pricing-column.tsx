@@ -32,11 +32,12 @@ export interface PricingColumnProps
   icon?: ReactNode;
   description: string;
   price: number;
+  billingPeriod?: string;
   originalPrice?: number;
   promotionText?: ReactNode;
   priceNote: string;
   cta: {
-    variant: "glow" | "default";
+    variant: "glow" | "default" | "white";
     label: string;
     href: string;
   };
@@ -48,6 +49,7 @@ export function PricingColumn({
   icon,
   description,
   price,
+  billingPeriod = "/月",
   originalPrice,
   promotionText,
   priceNote,
@@ -87,7 +89,7 @@ export function PricingColumn({
             <div className="flex h-6 items-baseline gap-1">
               <span className="text-muted-foreground text-lg font-medium line-through">
                 {originalPrice > 0 && price !== originalPrice
-                  ? `$${originalPrice}`
+                  ? `¥${originalPrice}`
                   : ""}
               </span>
             </div>
@@ -96,20 +98,16 @@ export function PricingColumn({
             <div className="flex flex-col gap-1">
               <div className="flex items-baseline gap-1">
                 <span className="text-muted-foreground text-2xl font-bold">
-                  $
+                  ¥
                 </span>
                 <span className="text-6xl font-bold">{price}</span>
               </div>
             </div>
             <div className="flex min-h-[40px] flex-col">
-              {price > 0 && (
-                <>
-                  <span className="text-sm">one-time payment</span>
-                  <span className="text-muted-foreground text-sm">
-                    plus local taxes
-                  </span>
-                </>
-              )}
+              <span className="text-sm">{billingPeriod}</span>
+              <span className="text-muted-foreground text-sm">
+                {price > 0 ? "会员方案预览" : "无需付费"}
+              </span>
             </div>
           </div>
           {promotionText && (

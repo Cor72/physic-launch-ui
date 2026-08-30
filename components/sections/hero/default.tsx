@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, BookOpenIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import taskPreview from "@/public/1.png";
 import problemPreview from "@/public/2.png";
 
-import Github from "../../logos/github";
 import { Badge } from "../../ui/badge";
 import Glow from "../../ui/glow";
 import { LinkButton, type LinkButtonProps } from "../../ui/link-button";
@@ -34,24 +33,22 @@ interface HeroProps {
 const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
   {
     href: siteConfig.getStartedUrl,
-    text: "Get Started",
+    text: "观看动态演示",
     variant: "white",
   },
   {
-    href: siteConfig.links.github,
-    text: "GitHub",
+    href: siteConfig.links.features,
+    text: "了解核心功能",
     variant: "glow",
-    icon: <Github className="mr-2 size-4" />,
+    icon: <BookOpenIcon className="mr-2 size-4" />,
   },
 ];
 
 const DEFAULT_HERO_BADGE = (
   <Badge variant="outline" className="motion-safe:animate-appear flex-wrap">
-    <span className="text-muted-foreground">
-      New version of Launch UI is out!
-    </span>
+    <span className="text-muted-foreground">让物理过程看得见</span>
     <a href={siteConfig.getStartedUrl} className="flex items-center gap-1">
-      Get started
+      查看演示
       <ArrowRightIcon className="size-3" />
     </a>
   </Badge>
@@ -62,14 +59,12 @@ const HERO_PREVIEWS = [
     name: "tasks",
     type: "image",
     srcLight: taskPreview,
-    srcDark: "/app-tasks-dark.png",
     alt: "学习平台页面预览",
   },
   {
     name: "problem",
     type: "image",
     srcLight: problemPreview,
-    srcDark: "/examples-dark.png",
     alt: "滑块沿圆轨道运动的物理题目预览",
   },
   {
@@ -93,7 +88,6 @@ function HeroShowcase() {
               ) : (
                 <Screenshot
                   srcLight={preview.srcLight}
-                  srcDark={preview.srcDark}
                   alt={preview.alt}
                   width={preview.srcLight.width}
                   height={preview.srcLight.height}
@@ -113,7 +107,7 @@ function HeroShowcase() {
 export default function Hero({
   title1 = "悟言视界",
   title2 = "AI动态题目可视化学习平台",
-  description1 = "上传题目，感受可播放、可调参数、显示受力与轨迹的交互场景，建立更清晰的物理过程，更高效地讲授与讲解复杂题目",
+  description1 = "把看不懂的物理题，变成看得见、能操作的动态过程。面向学生理解与教师讲授，用运动、受力和轨迹还原题目中的物理情境。",
   mockup,
   badge = DEFAULT_HERO_BADGE,
   buttons = DEFAULT_HERO_BUTTONS,
@@ -132,7 +126,7 @@ export default function Hero({
           <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
             {title1}
           </h1>
-          <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
+          <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
             {title2}
           </h1>
           <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
@@ -156,7 +150,7 @@ export default function Hero({
           )}
         </div>
         {mockup !== false && (
-          <div className={styles.visual}>
+          <div id="demo" className={cn(styles.visual, "scroll-mt-32")}>
             <div
               aria-hidden="true"
               className={cn(styles.glow, "dark:hidden")}

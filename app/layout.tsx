@@ -15,24 +15,22 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   description: siteConfig.description,
   keywords: [
-    "Landing page template",
-    "Components",
-    "Shadcn",
-    "Next.js",
-    "React",
-    "Tailwind CSS",
-    "Radix UI",
+    "物理可视化",
+    "高中物理",
+    "动态题目",
+    "受力分析",
+    "物理模型",
+    "课堂演示",
   ],
   authors: [
     {
-      name: "Mikolaj Dobrucki",
-      url: "https://mikolajdobrucki.com",
+      name: "悟言视界团队",
     },
   ],
-  creator: "mikolajdobrucki",
+  creator: "悟言视界团队",
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "zh_CN",
     url: siteConfig.url,
     title: siteConfig.name,
     description: siteConfig.description,
@@ -40,8 +38,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
         alt: siteConfig.name,
       },
     ],
@@ -51,7 +47,6 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
-    creator: "@mikolajdobrucki",
   },
   icons: {
     icon: "/favicon.svg",
@@ -66,7 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="zh-CN"
       className="light"
       style={{ colorScheme: "light" }}
       suppressHydrationWarning

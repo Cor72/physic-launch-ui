@@ -1,31 +1,30 @@
 export const siteConfig = {
-  name: "Launch UI",
-  url: "https://launchuicomponents.com",
-  getStartedUrl:
-    "https://launchuicomponents.com/docs/getting-started/introduction",
-  ogImage: "https://launchuicomponents.com/og.jpg",
+  name: "悟言视界",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  homeUrl: "#home",
+  getStartedUrl: "#demo",
+  ogImage: "/1.png",
   description:
-    "Landing page components built with React, Shadcn/ui and Tailwind that will make your website feel premium.",
-  version: "v2.10",
+    "面向中学物理师生的AI动态题目可视化学习平台，把抽象题目转化为可播放、可调参数、可观察受力与轨迹的动态过程。",
+  version: "原型演示版",
   links: {
-    twitter: "https://twitter.com/mikolajdobrucki",
-    github: "https://github.com/launch-ui/launch-ui",
-    email: "mailto:contact@mikolajdobrucki.com",
+    features: "#features",
+    models: "#models",
+    pricing: "#pricing",
+    faq: "#faq",
+    teachers: "#teachers",
   },
+  // 会员价格已确定；权益与使用额度仍为首版方案，可继续调整。
   pricing: {
-    pro: "https://launchui.lemonsqueezy.com/buy/b4798c68-c858-4c34-860b-069b5a0d6c4e",
-    team: "https://launchui.lemonsqueezy.com/buy/130d8cfe-e123-464b-9f67-c74c5fedfb45",
+    free: 0,
+    monthly: 28,
+    yearly: 288,
   },
   stats: {
-    figma: 10989,
-    github: 2078,
-    cli: 21675,
-    total: "34.7k+",
-    updated: "24 Jun 2026",
-    sections: 74,
-    illustrations: 23,
-    animations: 15,
-    templates: 7,
+    models: 5,
+    audiences: 2,
+    steps: 4,
+    layers: 3,
   },
 };
 

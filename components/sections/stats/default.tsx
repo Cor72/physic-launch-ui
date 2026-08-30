@@ -14,32 +14,30 @@ interface StatsProps {
   className?: string;
 }
 
-function formatToThousands(value: number) {
-  return Math.round(value / 100) / 10;
-}
-
 const DEFAULT_STATS: StatItemProps[] = [
   {
-    label: "used by",
-    value: formatToThousands(siteConfig.stats.figma),
-    suffix: "k",
-    description: "designers on Figma Community",
+    label: "首期聚焦",
+    value: siteConfig.stats.models,
+    suffix: "类",
+    description: "优先打磨的高频物理模型",
   },
   {
-    label: "over",
-    value: siteConfig.stats.github,
-    description: "clones and forks of the template on GitHub",
+    label: "服务对象",
+    value: siteConfig.stats.audiences,
+    suffix: "类",
+    description: "学生自主学习与教师课堂讲授",
   },
   {
-    label: "already",
-    value: formatToThousands(siteConfig.stats.cli),
-    suffix: "k",
-    description: "installations with shadcn/ui CLI",
+    label: "学习路径",
+    value: siteConfig.stats.steps,
+    suffix: "步",
+    description: "识别题意、确认条件、观察过程、调参探索",
   },
   {
-    label: "includes",
-    value: siteConfig.stats.sections,
-    description: "blocks and sections",
+    label: "技术分工",
+    value: siteConfig.stats.layers,
+    suffix: "层",
+    description: "题意分析、确定性计算与交互渲染",
   },
 ];
 

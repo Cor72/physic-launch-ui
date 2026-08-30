@@ -33,7 +33,12 @@ export function ThemeToggle() {
 
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
-  const selectedTheme = theme ?? "light";
+  const themeLabels: Record<string, string> = {
+    light: "浅色",
+    dark: "深色",
+    system: "跟随系统",
+  };
+  const selectedTheme = themeLabels[theme ?? "light"] ?? "浅色";
 
   return (
     <DropdownMenu>
@@ -42,19 +47,19 @@ export function ModeToggle() {
           <span className="capitalize" suppressHydrationWarning>
             {selectedTheme}
           </span>
-          <span className="inline"> theme</span>
+          <span className="inline">主题</span>
           <ChevronsUpDownIcon className="size-3" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
+          浅色模式
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
+          深色模式
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
+          跟随系统
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
