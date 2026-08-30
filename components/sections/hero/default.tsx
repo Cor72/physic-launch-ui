@@ -128,7 +128,7 @@ export default function Hero({
           <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
             {title1}
           </h1>
-          <h1 className="text-foreground motion-safe:animate-appear font-semibold text-3xl leading-tight tracking-tight sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
+          <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
             {title2}
           </h1>
           <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
@@ -153,9 +153,14 @@ export default function Hero({
         </div>
         {mockup !== false && (
           <div className={styles.visual}>
+            <div
+              aria-hidden="true"
+              className={cn(styles.glow, "dark:hidden")}
+            />
             <Glow
+              aria-hidden="true"
               variant="top"
-              className="pointer-events-none -z-10 opacity-60"
+              className="pointer-events-none -z-10 hidden opacity-60 dark:block"
             />
             {mockup === undefined ? (
               <HeroShowcase />
