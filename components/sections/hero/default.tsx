@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
+import taskPreview from "@/public/1.png";
+import problemPreview from "@/public/2.png";
 
 import Github from "../../logos/github";
 import { Badge } from "../../ui/badge";
@@ -12,6 +14,7 @@ import { Mockup, MockupFrame } from "../../ui/mockup";
 import Screenshot from "../../ui/screenshot";
 import { Section } from "../../ui/section";
 import styles from "./hero.module.css";
+import PreviewVideo from "./preview-video";
 
 interface HeroButtonProps extends Omit<LinkButtonProps, "children"> {
   text: string;
@@ -32,7 +35,7 @@ const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
   {
     href: siteConfig.getStartedUrl,
     text: "Get Started",
-    variant: "default",
+    variant: "white",
   },
   {
     href: siteConfig.links.github,
@@ -57,26 +60,23 @@ const DEFAULT_HERO_BADGE = (
 const HERO_PREVIEWS = [
   {
     name: "tasks",
-    srcLight: "/app-tasks-light.png",
+    type: "image",
+    srcLight: taskPreview,
     srcDark: "/app-tasks-dark.png",
-    alt: "Launch UI task management page preview",
-    height: 1640,
+    alt: "学习平台页面预览",
   },
   {
-    name: "components",
-    srcLight: "/examples-light.png",
+    name: "problem",
+    type: "image",
+    srcLight: problemPreview,
     srcDark: "/examples-dark.png",
-    alt: "Launch UI components and widgets page preview",
-    height: 1642,
+    alt: "滑块沿圆轨道运动的物理题目预览",
   },
   {
-    name: "dashboard",
-    srcLight: "/dashboard-light.png",
-    srcDark: "/dashboard-dark.png",
-    alt: "Launch UI analytics dashboard page preview",
-    height: 1640,
+    name: "simulation",
+    type: "video",
   },
-];
+] as const;
 
 function HeroShowcase() {
   return (
@@ -88,16 +88,20 @@ function HeroShowcase() {
               type="responsive"
               className="bg-background w-full rounded-xl border-0"
             >
-              <Screenshot
-                srcLight={preview.srcLight}
-                srcDark={preview.srcDark}
-                alt={preview.alt}
-                width={2680}
-                height={preview.height}
-                loading="eager"
-                sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1312px) calc(100vw - 224px), 1088px"
-                className="h-auto w-full"
-              />
+              {preview.type === "video" ? (
+                <PreviewVideo />
+              ) : (
+                <Screenshot
+                  srcLight={preview.srcLight}
+                  srcDark={preview.srcDark}
+                  alt={preview.alt}
+                  width={preview.srcLight.width}
+                  height={preview.srcLight.height}
+                  loading="eager"
+                  sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1312px) calc(100vw - 224px), 1088px"
+                  className="h-auto w-full"
+                />
+              )}
             </Mockup>
           </MockupFrame>
         </div>

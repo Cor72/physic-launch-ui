@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import LaunchUI from "../../logos/launch-ui";
 import { Button, buttonVariants } from "../../ui/button";
+import { ThemeToggle } from "../../ui/mode-toggle";
 import {
   Navbar as NavbarComponent,
   NavbarLeft,
@@ -57,7 +58,7 @@ export default function Navbar({
       text: "Get Started",
       href: siteConfig.url,
       isButton: true,
-      variant: "default",
+      variant: "white",
     },
   ],
   showNavigation = true,
@@ -68,8 +69,8 @@ export default function Navbar({
     <header className={cn("sticky top-0 z-50 -mb-4 px-4 pb-4", className)}>
       <div className="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
       <div className="max-w-container relative mx-auto">
-        <NavbarComponent>
-          <NavbarLeft>
+        <NavbarComponent className="flex-wrap gap-2">
+          <NavbarLeft className="gap-2 md:gap-4">
             <a
               href={homeUrl}
               className="flex items-center gap-2 text-xl font-bold"
@@ -77,9 +78,14 @@ export default function Navbar({
               {logo}
               {name}
             </a>
-            {showNavigation && (customNavigation || <Navigation />)}
+            <ThemeToggle />
+            {showNavigation && (
+              <div className="hidden lg:block">
+                {customNavigation || <Navigation />}
+              </div>
+            )}
           </NavbarLeft>
-          <NavbarRight>
+          <NavbarRight className="ml-auto gap-2 md:gap-4">
             {actions.map((action) =>
               action.isButton ? (
                 <Button
@@ -108,7 +114,7 @@ export default function Navbar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="shrink-0 md:hidden"
+                  className="shrink-0 lg:hidden"
                 >
                   <Menu className="size-5" />
                   <span className="sr-only">Toggle navigation menu</span>

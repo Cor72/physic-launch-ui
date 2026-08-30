@@ -3,8 +3,8 @@ import Image, { type ImageProps } from "next/image";
 import { cn } from "@/lib/utils";
 
 interface ScreenshotProps {
-  srcLight: string;
-  srcDark?: string;
+  srcLight: ImageProps["src"];
+  srcDark?: ImageProps["src"];
   alt: string;
   width: number;
   height: number;
@@ -33,7 +33,7 @@ export default function Screenshot({
         loading={loading}
         sizes={sizes}
         className={className}
-        unoptimized={srcLight.endsWith(".svg")}
+        unoptimized={typeof srcLight === "string" && srcLight.endsWith(".svg")}
       />
     );
   }
@@ -48,7 +48,7 @@ export default function Screenshot({
         loading={loading}
         sizes={sizes}
         className={cn(className, "block dark:hidden")}
-        unoptimized={srcLight.endsWith(".svg")}
+        unoptimized={typeof srcLight === "string" && srcLight.endsWith(".svg")}
       />
       <Image
         src={srcDark}
@@ -58,7 +58,7 @@ export default function Screenshot({
         loading={loading}
         sizes={sizes}
         className={cn(className, "hidden dark:block")}
-        unoptimized={srcDark.endsWith(".svg")}
+        unoptimized={typeof srcDark === "string" && srcDark.endsWith(".svg")}
       />
     </>
   );

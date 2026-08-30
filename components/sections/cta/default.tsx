@@ -19,7 +19,7 @@ const DEFAULT_CTA_BUTTONS: CTAButtonProps[] = [
   {
     href: siteConfig.getStartedUrl,
     text: "Get Started",
-    variant: "default",
+    variant: "white",
   },
 ];
 
