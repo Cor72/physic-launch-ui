@@ -20,6 +20,11 @@ export const BALL_RADIUS = 14;
 const GRAVITY = 1000; // CSS pixels / second²; intentionally independent of DPR.
 const STEP = 1000 / 120;
 const THICKNESS = 8;
+const SURFACE_FRICTION = 0.002;
+const SURFACE_STATIC_FRICTION = 0.004;
+const WALL_BOOST_X = 380; // Added velocity in CSS pixels / second.
+const WALL_BOOST_Y = 240;
+const WALL_SPEED_LIMIT = 900;
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 const lerp = (a: Point, b: Point, t: number): Point => ({
@@ -114,7 +119,7 @@ export function ballOrigin(
 }
 
 /** A decorative simulation: gravity, restitution and moving rims determine the
- * route. Only the first left-wall contact adds a small, fixed impulse. */
+ * route. Only the first left-wall contact adds a bounded assist. */
 export function createHeroBallSimulation(options: {
   frames: FrameQuad[];
   width: number;
@@ -132,8 +137,8 @@ export function createHeroBallSimulation(options: {
   let simulatedFrames = options.frames;
   const origin = ballOrigin(options.frames, options.width, options.spawnY);
   const ball = Bodies.circle(origin.x, origin.y, BALL_RADIUS, {
-    friction: 0.01,
-    frictionStatic: 0.02,
+    friction: SURFACE_FRICTION,
+    frictionStatic: SURFACE_STATIC_FRICTION,
     frictionAir: 0.0005,
     restitution: 0.55,
     slop: 0.01,
@@ -180,12 +185,16 @@ export function createHeroBallSimulation(options: {
           body: Bodies.rectangle(center.x, center.y, length, THICKNESS, {
             angle,
             isStatic: true,
-            friction: 0.01,
             restitution: 0,
             slop: 0.01,
           }),
           length,
         };
+        // Static-body initialization overwrites friction, so set it afterwards.
+        Body.set(platform.body, {
+          friction: SURFACE_FRICTION,
+          frictionStatic: SURFACE_STATIC_FRICTION,
+        });
         platforms.set(key, platform);
         Composite.add(engine.world, platform.body);
       } else {
@@ -286,8 +295,12 @@ export function createHeroBallSimulation(options: {
           Body.setVelocity(ball, {
             x:
               ball.velocity.x +
-              Math.max(0, Math.min(260, 720 - ball.velocity.x * 60)) / 60,
-            y: ball.velocity.y - 160 / 60,
+              Math.max(
+                0,
+                Math.min(WALL_BOOST_X, WALL_SPEED_LIMIT - ball.velocity.x * 60),
+              ) /
+                60,
+            y: ball.velocity.y - WALL_BOOST_Y / 60,
           });
         }
         const surfaceMoving = [...platforms.values()].some(

@@ -162,7 +162,7 @@ test("the first impact visibly bounces, then loses bounce height downhill", () =
   );
 });
 
-test("the left wall gives a modest one-time boost without aiming at the second card", () => {
+test("the left wall supplies enough bounded assistance to climb back up the first rim", () => {
   const samples = trace();
   const turn = samples.findIndex(
     (s, i) =>
@@ -180,20 +180,18 @@ test("the left wall gives a modest one-time boost without aiming at the second c
   const outgoing =
     (samples[turn + 2].position.x - samples[turn + 1].position.x) * 120;
   assert.ok(
-    outgoing > 0 && outgoing <= Math.abs(incoming) + 280,
+    outgoing > 0 && outgoing <= Math.abs(incoming) + 400,
     `excessive wall speed ${outgoing}`,
   );
-  const firstReturn = samples.slice(turn + 1, turn + 121);
-  const returnDistance = Math.max(
-    ...firstReturn.map((s) => s.position.x),
-  );
+  const firstReturn = samples.slice(turn + 1, turn + 181);
+  const returnDistance = Math.max(...firstReturn.map((s) => s.position.x));
   assert.ok(
-    returnDistance > 480,
+    returnDistance > 760,
     `wall assistance is too weak, return x=${returnDistance}`,
   );
   assert.ok(
-    returnDistance < 700,
-    "should return along the first rim instead of launching straight to card two",
+    returnDistance < 1000,
+    "wall assistance must remain bounded rather than launch across the whole scene",
   );
 });
 
