@@ -127,69 +127,70 @@ export default function Hero({
   className,
 }: HeroProps) {
   return (
-    <Section
-      data-hero-physics-root=""
-      className={cn(
-        "relative isolate overflow-hidden pt-8 pb-0 sm:pt-12 sm:pb-0 md:pt-12 md:pb-0",
-        className,
-      )}
-    >
-      <div className="max-w-container mx-auto">
-        <div className="relative z-20 flex max-w-3xl flex-col items-start gap-6 text-left sm:gap-8">
-          {badge !== false && badge}
-          <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
-            {title1}
-          </h1>
-          <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
-            {title2}
-          </h1>
-          <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
-            {description1}
-          </p>
-          {buttons !== false && buttons.length > 0 && (
-            <div className="motion-safe:animate-appear flex flex-wrap justify-start gap-4 motion-safe:opacity-0 motion-safe:delay-300">
-              {buttons.map((button) => (
-                <LinkButton
-                  key={`${button.href}-${button.text}`}
-                  variant={button.variant || "default"}
-                  size="lg"
-                  href={button.href}
-                  icon={button.icon}
-                  iconRight={button.iconRight}
-                >
-                  {button.text}
-                </LinkButton>
-              ))}
+    <div data-hero-physics-root="" className="relative">
+      <Section
+        className={cn(
+          "relative isolate overflow-hidden pt-8 pb-0 sm:pt-12 sm:pb-0 md:pt-12 md:pb-0",
+          className,
+        )}
+      >
+        <div className="max-w-container mx-auto">
+          <div className="relative z-20 flex max-w-3xl flex-col items-start gap-6 text-left sm:gap-8">
+            {badge !== false && badge}
+            <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
+              {title1}
+            </h1>
+            <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
+              {title2}
+            </h1>
+            <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
+              {description1}
+            </p>
+            {buttons !== false && buttons.length > 0 && (
+              <div className="motion-safe:animate-appear flex flex-wrap justify-start gap-4 motion-safe:opacity-0 motion-safe:delay-300">
+                {buttons.map((button) => (
+                  <LinkButton
+                    key={`${button.href}-${button.text}`}
+                    variant={button.variant || "default"}
+                    size="lg"
+                    href={button.href}
+                    icon={button.icon}
+                    iconRight={button.iconRight}
+                  >
+                    {button.text}
+                  </LinkButton>
+                ))}
+              </div>
+            )}
+          </div>
+          {mockup !== false && (
+            <div id="demo" className={cn(styles.visual, "scroll-mt-32")}>
+              <div
+                aria-hidden="true"
+                className={cn(styles.glow, "dark:hidden")}
+              />
+              <Glow
+                aria-hidden="true"
+                variant="top"
+                className="pointer-events-none -z-10 hidden opacity-60 dark:block"
+              />
+              {mockup === undefined ? (
+                <HeroShowcase />
+              ) : (
+                <MockupFrame className="relative my-12" size="small">
+                  <Mockup
+                    type="responsive"
+                    className="bg-background/90 w-full rounded-xl border-0"
+                  >
+                    {mockup}
+                  </Mockup>
+                </MockupFrame>
+              )}
             </div>
           )}
         </div>
-        {mockup !== false && (
-          <div id="demo" className={cn(styles.visual, "scroll-mt-32")}>
-            <div
-              aria-hidden="true"
-              className={cn(styles.glow, "dark:hidden")}
-            />
-            <Glow
-              aria-hidden="true"
-              variant="top"
-              className="pointer-events-none -z-10 hidden opacity-60 dark:block"
-            />
-            {mockup === undefined ? (
-              <HeroShowcase />
-            ) : (
-              <MockupFrame className="relative my-12" size="small">
-                <Mockup
-                  type="responsive"
-                  className="bg-background/90 w-full rounded-xl border-0"
-                >
-                  {mockup}
-                </Mockup>
-              </MockupFrame>
-            )}
-          </div>
-        )}
-      </div>
+      </Section>
       {mockup === undefined && <HeroBall />}
-    </Section>
+    </div>
   );
 }

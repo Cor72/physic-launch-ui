@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  samplePendulum,
+  SWING_DURATION_MS,
+} from "../components/sections/hero/hero-ball-pendulum.ts";
+import {
   BALL_RADIUS,
+  ballOrigin,
   createHeroBallSimulation,
   visibleTopEdges,
 } from "../components/sections/hero/hero-ball-physics.ts";
@@ -74,6 +79,61 @@ const quad = (left, top, right, bottom) => [
   { x: right, y: bottom },
   { x: left, y: bottom },
 ];
+
+test("the suspended ball swings on a fixed-length rope, then comes to rest", () => {
+  const origin = { x: 800, y: 32 };
+  const initial = samplePendulum(origin, 100, 0);
+  const opposite = samplePendulum(origin, 100, 800);
+  const returning = samplePendulum(origin, 100, 1600);
+  assert.ok(initial.position.x > origin.x + 40);
+  assert.ok(opposite.position.x < origin.x - 20);
+  assert.ok(returning.position.x > origin.x);
+  assert.ok(returning.position.x - origin.x < initial.position.x - origin.x);
+  for (let time = 0; time <= SWING_DURATION_MS; time += 100) {
+    const pose = samplePendulum(origin, 100, time);
+    assert.ok(
+      Math.abs(
+        Math.hypot(
+          pose.position.x - pose.anchor.x,
+          pose.position.y - pose.anchor.y,
+        ) - 100,
+      ) < 0.001,
+    );
+    const next = samplePendulum(origin, 100, time + 1);
+    assert.ok(
+      Math.abs((next.position.x - pose.position.x) * 1000 - pose.velocity.x) <
+        0.5,
+    );
+  }
+  const rest = samplePendulum(origin, 100, SWING_DURATION_MS);
+  assert.deepEqual(rest.position, origin);
+  assert.deepEqual(rest.velocity, { x: 0, y: 0 });
+  assert.equal(rest.settled, true);
+  assert.deepEqual(samplePendulum(origin, 100, SWING_DURATION_MS + 5000), rest);
+});
+
+test("releasing mid-swing preserves the visible position and tangential velocity", () => {
+  const origin = ballOrigin(rest, 1265, 32);
+  const pose = samplePendulum(origin, 100, 260);
+  const sim = createHeroBallSimulation({
+    frames: rest,
+    width: 1265,
+    height: 1500,
+    spawnY: 32,
+    initialState: { position: pose.position, velocity: pose.velocity },
+  });
+  try {
+    assert.deepEqual(sim.advance(0, rest).position, pose.position);
+    const after = sim.advance(1000 / 120, rest);
+    assert.ok(pose.velocity.x < -100);
+    assert.ok(
+      Math.abs(after.position.x - pose.position.x - pose.velocity.x / 120) <
+        0.05,
+    );
+  } finally {
+    sim.dispose();
+  }
+});
 const mixFrames = (a, b, mix) =>
   a.map((frame, i) =>
     frame.map((p, j) => ({

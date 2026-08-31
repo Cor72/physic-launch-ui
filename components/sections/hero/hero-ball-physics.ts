@@ -125,6 +125,7 @@ export function createHeroBallSimulation(options: {
   width: number;
   height: number;
   spawnY: number;
+  initialState?: { position: Point; velocity: Point };
 }) {
   const { Bodies, Body, Composite, Engine, Events } = Matter;
   const engine = Engine.create({
@@ -135,7 +136,9 @@ export function createHeroBallSimulation(options: {
   engine.gravity.scale = GRAVITY / 1_000_000;
   let measuredFrames = options.frames;
   let simulatedFrames = options.frames;
-  const origin = ballOrigin(options.frames, options.width, options.spawnY);
+  const origin =
+    options.initialState?.position ??
+    ballOrigin(options.frames, options.width, options.spawnY);
   const ball = Bodies.circle(origin.x, origin.y, BALL_RADIUS, {
     friction: SURFACE_FRICTION,
     frictionStatic: SURFACE_STATIC_FRICTION,
@@ -143,6 +146,12 @@ export function createHeroBallSimulation(options: {
     restitution: 0.55,
     slop: 0.01,
   });
+  if (options.initialState) {
+    Body.setVelocity(ball, {
+      x: options.initialState.velocity.x / 60,
+      y: options.initialState.velocity.y / 60,
+    });
+  }
   // Its inner face coincides with the left viewport edge.
   const wall = Bodies.rectangle(
     -THICKNESS / 2,

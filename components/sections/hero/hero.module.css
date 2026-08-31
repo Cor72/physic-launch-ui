@@ -58,7 +58,7 @@
 
 .ballLayer {
   position: absolute;
-  z-index: 30;
+  z-index: 60;
   inset: 0;
   pointer-events: none;
   display: none;
@@ -67,6 +67,20 @@
   .ballLayer[data-ready="true"] {
     display: block;
   }
+}
+.ballRope {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: var(--foreground);
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.ballLayer:not([data-phase="idle"]) .ballRope {
+  visibility: hidden;
 }
 .ballTrigger {
   position: absolute;
@@ -116,6 +130,12 @@
 .ballTrigger:is(:hover, :focus-visible) .ballHint {
   opacity: 1;
 }
+.ballMotionViewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 .ballMotion {
   position: absolute;
   top: -14px;
@@ -124,8 +144,8 @@
   height: 28px;
   will-change: transform;
 }
-.ballLayer[data-phase="idle"] .ballMotion {
-  visibility: hidden;
+.ballLayer[data-phase="idle"] .ballMotionViewport {
+  display: none;
 }
 .ballLayer:not([data-phase="idle"]) .ballTrigger {
   opacity: 0;
