@@ -1,5 +1,8 @@
 import type { Point } from "./hero-ball-physics";
 
+const BALL_RADIUS = 14; // Matches the visible 28px circle, rather than its larger click target.
+const CEILING_RESTITUTION = 0.78;
+
 export function createBallGesture(
   start: Point,
   origin: Point,
@@ -46,10 +49,10 @@ export function elasticDragPosition(
 ): Point {
   const limit = length * 4;
   let dx = pointer.x - anchor.x,
-    dy = Math.max(20, pointer.y - anchor.y);
+    dy = Math.max(BALL_RADIUS, pointer.y - anchor.y);
   const scale = Math.min(1, limit / Math.hypot(dx, dy));
   dx *= scale;
-  dy = Math.max(20, dy * scale);
+  dy = Math.max(BALL_RADIUS, dy * scale);
   const horizontalLimit = Math.sqrt(Math.max(0, limit ** 2 - dy ** 2));
   return {
     x: anchor.x + Math.max(-horizontalLimit, Math.min(horizontalLimit, dx)),
@@ -98,9 +101,13 @@ export function createElasticReturn(
         v.y += (gravity - tension * ny - 3.5 * v.y) * step;
         p.x += v.x * step;
         p.y += v.y * step;
-        if (p.y < anchor.y + 20) {
-          p.y = anchor.y + 20;
-          v.y = Math.abs(v.y) * 0.2;
+        const ceiling = anchor.y + BALL_RADIUS;
+        if (p.y < ceiling) {
+          if (v.y < 0) {
+            // Reflect the remaining travel in this step so contact does not pause the ball.
+            p.y = ceiling + (ceiling - p.y) * CEILING_RESTITUTION;
+            v.y = -v.y * CEILING_RESTITUTION;
+          } else p.y = ceiling;
         }
         elapsed += step;
         quiet =

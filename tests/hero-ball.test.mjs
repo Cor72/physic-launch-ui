@@ -122,7 +122,7 @@ test("the elastic rope stretches beyond its hanging length without unbounded ext
   });
   const far = elasticDragPosition(anchor, 80, { x: 2000, y: 2000 });
   assert.ok(Math.hypot(far.x - anchor.x, far.y - anchor.y) <= 320.001);
-  assert.ok(elasticDragPosition(anchor, 80, { x: 500, y: -100 }).y >= 20);
+  assert.equal(elasticDragPosition(anchor, 80, { x: 500, y: -100 }).y, 14);
 });
 
 test("a stretched rope releases without a position jump, rebounds and settles at the shortened hanging position", () => {
@@ -137,7 +137,7 @@ test("a stretched rope releases without a position jump, rebounds and settles at
   for (let i = 0; i < 960; i++) {
     snapshot = spring.advance(1000 / 120);
     assert.ok(Number.isFinite(snapshot.position.x + snapshot.position.y));
-    assert.ok(snapshot.position.y >= 20);
+    assert.ok(snapshot.position.y >= 14);
     crossedRest ||=
       snapshot.position.x < origin.x || snapshot.position.y < origin.y;
     if (snapshot.settled) break;
@@ -169,6 +169,31 @@ test("elastic recoil is consistent across refresh rates and damps a strong pull"
     ) < 0.1,
   );
   assert.ok(Math.hypot(low.position.x - 500, low.position.y - 80) < 100);
+});
+
+test("the ball keeps moving upward until its visible edge actually reaches the page ceiling", () => {
+  const spring = createElasticReturn(
+    { x: 500, y: 80 },
+    80,
+    { x: 500, y: 20 },
+    { x: 0, y: -180 },
+  );
+  const beforeContact = spring.advance(1000 / 120);
+  assert.ok(beforeContact.position.y > 14 && beforeContact.position.y < 20);
+  assert.ok(beforeContact.velocity.y < 0);
+});
+
+test("ceiling contact gives an immediate visible rebound without removing sideways momentum", () => {
+  const spring = createElasticReturn(
+    { x: 500, y: 80 },
+    80,
+    { x: 500, y: 15 },
+    { x: 100, y: -400 },
+  );
+  const hit = spring.advance(1000 / 120);
+  assert.ok(hit.position.y >= 14 && hit.position.y < 18);
+  assert.ok(hit.velocity.y > 250 && hit.velocity.y < 400);
+  assert.ok(hit.velocity.x > 90);
 });
 
 test("the suspended ball swings on a fixed-length rope, then comes to rest", () => {
