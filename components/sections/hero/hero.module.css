@@ -90,20 +90,12 @@
 }
 .ballSurface {
   display: block;
+  box-sizing: border-box;
   width: 28px;
   height: 28px;
+  border: 2px solid #1d3d50;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 32% 25%,
-    #fff1c7 0%,
-    #ffd28b 18%,
-    #ed963b 52%,
-    #bb5a16 85%,
-    #8e3d0d 100%
-  );
-  box-shadow:
-    inset -2px -3px 5px rgb(116 47 4 / 18%),
-    0 3px 7px rgb(149 82 20 / 20%);
+  background: #fff;
 }
 .ballHint {
   position: absolute;
