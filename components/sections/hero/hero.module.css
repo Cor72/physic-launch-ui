@@ -32,6 +32,114 @@
   position: relative;
 }
 
+.edgeProbe {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+.edgeProbe[data-hero-corner="tl"] {
+  top: 0;
+  left: 0;
+}
+.edgeProbe[data-hero-corner="tr"] {
+  top: 0;
+  right: 0;
+}
+.edgeProbe[data-hero-corner="br"] {
+  bottom: 0;
+  right: 0;
+}
+.edgeProbe[data-hero-corner="bl"] {
+  bottom: 0;
+  left: 0;
+}
+
+.ballLayer {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .ballLayer[data-ready="true"] {
+    display: block;
+  }
+}
+.ballTrigger {
+  position: absolute;
+  top: -22px;
+  left: -22px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.ballTrigger:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 4px;
+}
+.ballSurface {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 25%,
+    #fff1c7 0%,
+    #ffd28b 18%,
+    #ed963b 52%,
+    #bb5a16 85%,
+    #8e3d0d 100%
+  );
+  box-shadow:
+    inset -2px -3px 5px rgb(116 47 4 / 18%),
+    0 3px 7px rgb(149 82 20 / 20%);
+}
+.ballHint {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 150ms;
+  pointer-events: none;
+}
+.ballTrigger:is(:hover, :focus-visible) .ballHint {
+  opacity: 1;
+}
+.ballMotion {
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  width: 28px;
+  height: 28px;
+  will-change: transform;
+}
+.ballLayer[data-phase="idle"] .ballMotion {
+  visibility: hidden;
+}
+.ballLayer:not([data-phase="idle"]) .ballTrigger {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* The reference combines rotation with skew, rather than a plain rotation.
    Keep this transform on a wrapper so the entrance animation cannot replace it. */
 .preview {

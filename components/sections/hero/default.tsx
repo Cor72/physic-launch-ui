@@ -13,6 +13,7 @@ import { Mockup, MockupFrame } from "../../ui/mockup";
 import Screenshot from "../../ui/screenshot";
 import { Section } from "../../ui/section";
 import styles from "./hero.module.css";
+import HeroBall from "./hero-ball";
 import PreviewVideo from "./preview-video";
 
 interface HeroButtonProps extends Omit<LinkButtonProps, "children"> {
@@ -78,7 +79,19 @@ function HeroShowcase() {
     <div className={styles.showcase}>
       {HERO_PREVIEWS.map((preview) => (
         <div key={preview.name} className={styles.preview}>
-          <MockupFrame className={styles.previewFrame} size="small">
+          <MockupFrame
+            data-hero-preview={preview.name}
+            className={styles.previewFrame}
+            size="small"
+          >
+            {["tl", "tr", "br", "bl"].map((corner) => (
+              <span
+                key={corner}
+                data-hero-corner={corner}
+                className={styles.edgeProbe}
+                aria-hidden="true"
+              />
+            ))}
             <Mockup
               type="responsive"
               className="bg-background w-full rounded-xl border-0"
@@ -115,6 +128,7 @@ export default function Hero({
 }: HeroProps) {
   return (
     <Section
+      data-hero-physics-root=""
       className={cn(
         "relative isolate overflow-hidden pt-8 pb-0 sm:pt-12 sm:pb-0 md:pt-12 md:pb-0",
         className,
@@ -175,6 +189,7 @@ export default function Hero({
           </div>
         )}
       </div>
+      {mockup === undefined && <HeroBall />}
     </Section>
   );
 }
