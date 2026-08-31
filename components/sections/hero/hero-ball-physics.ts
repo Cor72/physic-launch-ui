@@ -10,7 +10,7 @@ export interface Edge {
   start: Point;
   end: Point;
 }
-export type BallPhase = "drop" | "hop" | "second" | "third" | "exit" | "done";
+export type BallPhase = "drop" | "bouncing" | "return" | "done";
 export interface BallSnapshot {
   position: Point;
   phase: BallPhase;
@@ -104,37 +104,17 @@ function landing(edges: Edge[], frame: number, desiredX: number): Point {
   };
 }
 
-function targetFor(
-  phase: BallPhase,
-  frames: FrameQuad[],
-  width: number,
-  hopX: number,
-): Point {
-  const edges = visibleTopEdges(frames, width);
-  const firstX = frames[0][1].x - clamp(width * 0.08, 75, 145);
-  if (phase === "drop") return landing(edges, 0, firstX);
-  if (phase === "hop") return landing(edges, 0, firstX - hopX);
-  const frame = phase === "second" ? 1 : 2;
-  return landing(
-    edges,
-    frame,
-    Math.max(
-      frames[frame - 1][1].x + 48,
-      Math.min(width - 46, frames[frame][1].x - 100),
-    ),
-  );
-}
-
 export function ballOrigin(
   frames: FrameQuad[],
   width: number,
   spawnY: number,
 ): Point {
-  return { x: targetFor("drop", frames, width, 0).x, y: spawnY };
+  const firstX = frames[0][1].x - clamp(width * 0.08, 75, 145);
+  return { x: landing(visibleTopEdges(frames, width), 0, firstX).x, y: spawnY };
 }
 
-/** Gravity and contacts are simulated. Launch impulses deliberately choreograph
- * this decorative route; they must not be reused as an educational physics model. */
+/** A decorative simulation: gravity, restitution and moving rims determine the
+ * route. Only the first left-wall contact adds a small, fixed impulse. */
 export function createHeroBallSimulation(options: {
   frames: FrameQuad[];
   width: number;
@@ -148,42 +128,48 @@ export function createHeroBallSimulation(options: {
   });
   engine.gravity.y = 1;
   engine.gravity.scale = GRAVITY / 1_000_000;
-  let frames = options.frames;
-  const origin = ballOrigin(frames, options.width, options.spawnY);
+  let measuredFrames = options.frames;
+  let simulatedFrames = options.frames;
+  const origin = ballOrigin(options.frames, options.width, options.spawnY);
   const ball = Bodies.circle(origin.x, origin.y, BALL_RADIUS, {
-    friction: 0,
-    frictionAir: 0,
-    restitution: 0,
+    friction: 0.01,
+    frictionStatic: 0.02,
+    frictionAir: 0.0005,
+    restitution: 0.55,
     slop: 0.01,
   });
-  Composite.add(engine.world, ball);
-  const platforms = new Map<
-    string,
-    { body: Matter.Body; length: number; frame: number }
-  >();
-  let phase: BallPhase = "drop";
-  let elapsed = 0,
-    accumulator = 0,
-    lastContact = -1;
-  let contact: number | null = null;
-  let target = targetFor("drop", frames, options.width, 0);
-  let arrival = Math.sqrt(
-    Math.max(1, (2 * (target.y - options.spawnY)) / GRAVITY),
+  // Its inner face coincides with the left viewport edge.
+  const wall = Bodies.rectangle(
+    -THICKNESS / 2,
+    options.height / 2,
+    THICKNESS,
+    options.height * 3,
+    { isStatic: true, slop: 0.01 },
   );
+  // Matter resets these when a body becomes static; configure them afterwards.
+  Body.set(wall, { friction: 0, restitution: 0.8 });
+  Composite.add(engine.world, [ball, wall]);
+  const platforms = new Map<string, { body: Matter.Body; length: number }>();
+  let phase: BallPhase = "drop";
+  let elapsed = 0;
+  let accumulator = 0;
+  let settledFor = 0;
+  let wallContact = false;
+  let wallBoosted = false;
   let disposed = false;
 
-  function syncPlatforms() {
+  function syncPlatforms(frames: FrameQuad[], previous: FrameQuad[]) {
     const active = new Set<string>();
-    for (const [index, edge] of visibleTopEdges(
-      frames,
-      options.width,
-    ).entries()) {
+    const segments = new Map<number, number>();
+    for (const edge of visibleTopEdges(frames, options.width)) {
+      const index = segments.get(edge.frame) ?? 0;
+      segments.set(edge.frame, index + 1);
       const key = `${edge.frame}:${index}`;
       active.add(key);
-      const dx = edge.end.x - edge.start.x,
-        dy = edge.end.y - edge.start.y;
-      const length = Math.hypot(dx, dy),
-        angle = Math.atan2(dy, dx);
+      const dx = edge.end.x - edge.start.x;
+      const dy = edge.end.y - edge.start.y;
+      const length = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
       const center = {
         x: (edge.start.x + edge.end.x) / 2 - ((dy / length) * THICKNESS) / 2,
         y: (edge.start.y + edge.end.y) / 2 + ((dx / length) * THICKNESS) / 2,
@@ -192,22 +178,50 @@ export function createHeroBallSimulation(options: {
       if (!platform) {
         platform = {
           body: Bodies.rectangle(center.x, center.y, length, THICKNESS, {
+            angle,
             isStatic: true,
-            friction: 0,
+            friction: 0.01,
             restitution: 0,
             slop: 0.01,
           }),
           length,
-          frame: edge.frame,
         };
         platforms.set(key, platform);
         Composite.add(engine.world, platform.body);
+      } else {
+        const body = platform.body;
+        if (Math.abs(length - platform.length) > 0.000001) {
+          const oldAngle = body.angle;
+          Body.setAngle(body, 0);
+          Body.scale(body, length / platform.length, 1);
+          Body.setAngle(body, oldAngle);
+        }
+        const angularStep = angle - body.angle;
+        Body.setAngle(body, angle);
+        Body.setAngularVelocity(body, angularStep);
+        Body.setPosition(body, center);
+        platform.length = length;
+
+        // Clipping can move the segment's midpoint without moving the card.
+        // Use the previous position of the SAME material point for its velocity.
+        const [a, b] = frames[edge.frame];
+        const [prevA, prevB] = previous[edge.frame];
+        const fraction = ((edge.start.x + edge.end.x) / 2 - a.x) / (b.x - a.x);
+        const prevDx = prevB.x - prevA.x;
+        const prevDy = prevB.y - prevA.y;
+        const prevLength = Math.hypot(prevDx, prevDy);
+        const prevPoint = lerp(prevA, prevB, fraction);
+        const prevCenter = {
+          x: prevPoint.x - ((prevDy / prevLength) * THICKNESS) / 2,
+          y: prevPoint.y + ((prevDx / prevLength) * THICKNESS) / 2,
+        };
+        // Static bodies are not integrated by Engine.update. Their contact
+        // velocities therefore need displacement per fixed substep, not per RAF.
+        Body.setVelocity(body, {
+          x: center.x - prevCenter.x,
+          y: center.y - prevCenter.y,
+        });
       }
-      Body.setAngle(platform.body, 0);
-      Body.scale(platform.body, length / platform.length, 1);
-      Body.setAngle(platform.body, angle);
-      Body.setPosition(platform.body, center);
-      platform.length = length;
     }
     for (const [key, platform] of platforms) {
       if (!active.has(key)) {
@@ -216,10 +230,9 @@ export function createHeroBallSimulation(options: {
       }
     }
   }
+  syncPlatforms(options.frames, options.frames);
 
   Events.on(engine, "collisionStart", (event) => {
-    if (elapsed - lastContact < 0.12 || phase === "exit") return;
-    const expected = phase === "second" ? 1 : phase === "third" ? 2 : 0;
     for (const pair of event.pairs) {
       const other =
         pair.bodyA === ball
@@ -227,54 +240,11 @@ export function createHeroBallSimulation(options: {
           : pair.bodyB === ball
             ? pair.bodyA
             : null;
-      if (
-        other &&
-        [...platforms.values()].some(
-          (p) => p.body === other && p.frame === expected,
-        )
-      )
-        contact = expected;
+      if (!other) continue;
+      if (other === wall && !wallBoosted) wallContact = true;
+      if (phase === "drop" && other !== wall) phase = "bouncing";
     }
   });
-
-  function launch() {
-    const next: Record<string, BallPhase> = {
-      drop: "hop",
-      hop: "second",
-      second: "third",
-      third: "exit",
-    };
-    phase = next[phase];
-    lastContact = elapsed;
-    const height =
-      phase === "hop"
-        ? 65
-        : phase === "second"
-          ? 105
-          : phase === "third"
-            ? 80
-            : 60;
-    target =
-      phase === "exit"
-        ? { x: options.width + BALL_RADIUS + 2, y: ball.position.y }
-        : targetFor(phase, frames, options.width, 65);
-    const vy = -Math.sqrt(2 * GRAVITY * height);
-    // Cross the right edge after the apex, while still clearing the last rim.
-    const seconds =
-      phase === "exit"
-        ? 0.6
-        : (-vy +
-            Math.sqrt(
-              vy * vy +
-                2 * GRAVITY * Math.max(-height + 1, target.y - ball.position.y),
-            )) /
-          GRAVITY;
-    arrival = elapsed + seconds;
-    Body.setVelocity(ball, {
-      x: (target.x - ball.position.x) / seconds / 60,
-      y: vy / 60,
-    });
-  }
 
   function dispose() {
     if (disposed) return;
@@ -288,35 +258,55 @@ export function createHeroBallSimulation(options: {
   return {
     advance(delta: number, nextFrames: FrameQuad[]): BallSnapshot {
       if (disposed) return { position: { ...ball.position }, phase: "done" };
-      frames = nextFrames;
-      syncPlatforms();
-      accumulator += clamp(delta, 0, 100);
+      const duration = clamp(delta, 0, 100);
+      const previousMeasurement = measuredFrames;
+      measuredFrames = nextFrames;
+      accumulator += duration;
       while (accumulator + 0.00001 >= STEP) {
         accumulator -= STEP;
         elapsed += STEP / 1000;
-        if (phase !== "exit") {
-          const nextTarget = targetFor(phase, frames, options.width, 65);
-          const remaining = Math.max(0.16, arrival - elapsed);
-          // Only correct for DOM motion. Stationary cards leave the ballistic
-          // flight untouched; no position teleport or synthetic collision.
+        const progress =
+          duration > 0 ? clamp((duration - accumulator) / duration, 0, 1) : 1;
+        const frames = nextFrames.map(
+          (frame, i) =>
+            frame.map((point, j) =>
+              lerp(previousMeasurement[i][j], point, progress),
+            ) as FrameQuad,
+        );
+        syncPlatforms(frames, simulatedFrames);
+        simulatedFrames = frames;
+
+        wallContact = false;
+        Engine.update(engine, STEP);
+        if (wallContact) {
+          wallBoosted = true;
+          phase = "return";
+          // Add a bounded kick AFTER Matter resolves the real contact.
+          // Never replace the velocity with a solved route to another card.
           Body.setVelocity(ball, {
             x:
               ball.velocity.x +
-              clamp((nextTarget.x - target.x) / remaining / 60, -1.5, 1.5),
-            y:
-              ball.velocity.y +
-              clamp((nextTarget.y - target.y) / remaining / 60, -1.5, 1.5),
+              Math.max(0, Math.min(260, 720 - ball.velocity.x * 60)) / 60,
+            y: ball.velocity.y - 160 / 60,
           });
-          target = nextTarget;
         }
-        contact = null;
-        Engine.update(engine, STEP);
-        if (contact !== null) launch();
+        const surfaceMoving = [...platforms.values()].some(
+          ({ body, length }) =>
+            Math.hypot(body.velocity.x, body.velocity.y) +
+              (Math.abs(body.angularVelocity) * length) / 2 >
+            0.05,
+        );
+        settledFor =
+          phase !== "drop" && !surfaceMoving && Body.getSpeed(ball) * 60 < 12
+            ? settledFor + STEP / 1000
+            : 0;
         if (
-          elapsed > 8 ||
-          (phase === "exit" &&
-            (ball.position.x > options.width + BALL_RADIUS ||
-              ball.position.y > options.height + BALL_RADIUS))
+          elapsed >= 20 ||
+          settledFor > 1 ||
+          ball.position.x > options.width + BALL_RADIUS ||
+          ball.position.x < -BALL_RADIUS ||
+          ball.position.y > options.height + BALL_RADIUS ||
+          !Number.isFinite(ball.position.x + ball.position.y)
         ) {
           phase = "done";
           dispose();
