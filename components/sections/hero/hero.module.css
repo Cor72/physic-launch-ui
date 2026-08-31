@@ -94,13 +94,18 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  cursor: pointer;
+  cursor: grab;
   pointer-events: auto;
+  touch-action: none;
+  user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 .ballTrigger:focus-visible {
   outline: 2px solid var(--foreground);
   outline-offset: 4px;
+}
+.ballLayer[data-dragging="true"] .ballTrigger {
+  cursor: grabbing;
 }
 .ballSurface {
   display: block;
@@ -112,6 +117,7 @@
   background: #fff;
 }
 .ballHint {
+  display: none;
   position: absolute;
   top: 50px;
   left: 50%;
@@ -128,17 +134,22 @@
   pointer-events: none;
 }
 .ballTrigger:is(:hover, :focus-visible) .ballHint {
+  display: block;
   opacity: 1;
+}
+.ballLayer[data-dragging="true"] .ballHint {
+  display: none;
+  opacity: 0;
 }
 .ballMotionViewport {
   position: absolute;
-  inset: 0;
+  inset: -120px 0 0;
   overflow: hidden;
   pointer-events: none;
 }
 .ballMotion {
   position: absolute;
-  top: -14px;
+  top: 106px;
   left: -14px;
   width: 28px;
   height: 28px;

@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 import styles from "./hero.module.css";
+import {
+  createBallGesture,
+  createElasticReturn,
+  elasticDragPosition,
+} from "./hero-ball-drag";
 import { samplePendulum, SWING_DURATION_MS } from "./hero-ball-pendulum";
 import type { FrameQuad, Point } from "./hero-ball-physics";
 
@@ -53,7 +58,13 @@ export default function HeroBall() {
     let didSwing = false;
     let idleState: ReturnType<typeof samplePendulum> | null = null;
     let hangingOrigin: Point | null = null;
-    let hangingLength = 100;
+    let hangingLength = 80;
+    let elasticReturn: ReturnType<typeof createElasticReturn> | null = null;
+    let elasticPrevious = 0;
+    let drag: {
+      pointerId: number;
+      gesture: ReturnType<typeof createBallGesture>;
+    } | null = null;
     const eligible = () => media.matches && inView && !document.hidden;
 
     function measure() {
@@ -74,13 +85,8 @@ export default function HeroBall() {
       return { frames, width: bounds.width, height: bounds.height, spawnY: 32 };
     }
 
-    function placeTrigger(now = performance.now()) {
-      if (!available || !hangingOrigin) return;
-      idleState = samplePendulum(
-        hangingOrigin,
-        hangingLength,
-        swingStarted === null ? SWING_DURATION_MS : now - swingStarted,
-      );
+    function paintTrigger() {
+      if (!idleState) return;
       move(trigger!, idleState.position);
       rope!.setAttribute("x1", String(idleState.anchor.x));
       rope!.setAttribute("y1", String(idleState.anchor.y));
@@ -88,29 +94,57 @@ export default function HeroBall() {
       rope!.setAttribute("y2", String(idleState.position.y));
     }
 
+    function placeTrigger(now = performance.now()) {
+      if (!available || !hangingOrigin || drag) return;
+      if (elasticReturn) {
+        idleState = elasticReturn.advance(now - elasticPrevious);
+        elasticPrevious = now;
+        if (idleState.settled) elasticReturn = null;
+      } else {
+        idleState = samplePendulum(
+          hangingOrigin,
+          hangingLength,
+          swingStarted === null ? SWING_DURATION_MS : now - swingStarted,
+        );
+      }
+      paintTrigger();
+    }
+
     function trackIdle(until: number) {
       idleUntil = Math.max(idleUntil, until);
       if (idleFrameId) return;
       const tick = (now: number) => {
         idleFrameId = 0;
-        if (!alive || !eligible() || !available || simulation) return;
+        if (!alive || !eligible() || !available || simulation || drag) return;
         try {
           placeTrigger(now);
         } catch {
           return;
         }
-        if (now < idleUntil) idleFrameId = requestAnimationFrame(tick);
+        if (now >= idleUntil && !idleState?.settled) {
+          elasticReturn = null;
+          swingStarted = null;
+          placeTrigger(now);
+        }
+        if (now < idleUntil && !idleState?.settled)
+          idleFrameId = requestAnimationFrame(tick);
       };
       idleFrameId = requestAnimationFrame(tick);
     }
 
     function stop() {
+      const pointerId = drag?.pointerId;
+      drag = null;
+      if (pointerId !== undefined && trigger!.hasPointerCapture(pointerId))
+        trigger!.releasePointerCapture(pointerId);
+      layer!.dataset.dragging = "false";
       cancelAnimationFrame(frameId);
       frameId = 0;
       cancelAnimationFrame(idleFrameId);
       idleFrameId = 0;
       idleUntil = 0;
       swingStarted = null;
+      elasticReturn = null;
       simulation?.dispose();
       simulation = null;
       layer!.dataset.phase = "idle";
@@ -155,6 +189,9 @@ export default function HeroBall() {
             scene.spawnY + host!.getBoundingClientRect().top + window.scrollY,
           ),
         );
+        // Shorten the rope to 80% while keeping its ceiling attachment fixed.
+        hangingOrigin.y -= hangingLength * 0.2;
+        hangingLength *= 0.8;
         available = true;
         if (!didSwing) {
           didSwing = true;
@@ -170,10 +207,9 @@ export default function HeroBall() {
     }
 
     playRef.current = () => {
-      if (!physics || !available || simulation || !eligible()) return;
+      if (!physics || !available || simulation || drag || !eligible()) return;
       try {
         const scene = measure();
-        placeTrigger();
         if (!idleState) return;
         simulation = physics.createHeroBallSimulation({
           ...scene,
@@ -187,6 +223,7 @@ export default function HeroBall() {
         idleFrameId = 0;
         idleUntil = 0;
         swingStarted = null;
+        elasticReturn = null;
         layer.dataset.phase = "drop";
         setRunning(true);
         let previous = performance.now();
@@ -220,9 +257,109 @@ export default function HeroBall() {
       }
     };
 
+    function recoil(velocity: Point) {
+      if (!idleState || !hangingOrigin || !available || !eligible()) return;
+      swingStarted = null;
+      elasticPrevious = performance.now();
+      elasticReturn = createElasticReturn(
+        hangingOrigin,
+        hangingLength,
+        idleState.position,
+        velocity,
+      );
+      idleUntil = 0;
+      trackIdle(elasticPrevious + 8100);
+    }
+
+    const pointerDown = (event: PointerEvent) => {
+      if (
+        !event.isPrimary ||
+        event.button !== 0 ||
+        !available ||
+        simulation ||
+        drag ||
+        !eligible()
+      )
+        return;
+      event.preventDefault();
+      placeTrigger();
+      if (!idleState) return;
+      cancelAnimationFrame(idleFrameId);
+      idleFrameId = 0;
+      const anchor = idleState.anchor;
+      const gesture = createBallGesture(
+        { x: event.clientX, y: event.clientY },
+        idleState.position,
+        (point) => {
+          const bounds = host.getBoundingClientRect();
+          const limited = {
+            x: Math.max(22, Math.min(bounds.width - 22, point.x)),
+            y: Math.min(window.innerHeight - bounds.top - 22, point.y),
+          };
+          return elasticDragPosition(anchor, hangingLength, limited);
+        },
+      );
+      gesture.update({ x: event.clientX, y: event.clientY }, performance.now());
+      drag = { pointerId: event.pointerId, gesture };
+      layer.dataset.dragging = "true";
+      trigger.setPointerCapture(event.pointerId);
+    };
+
+    const pointerMove = (event: PointerEvent) => {
+      if (drag?.pointerId !== event.pointerId || !idleState) return;
+      if (event.pointerType === "mouse" && event.buttons === 0) {
+        pointerCancel(event);
+        return;
+      }
+      const sample = drag.gesture.update(
+        { x: event.clientX, y: event.clientY },
+        performance.now(),
+      );
+      if (!sample.dragged) return;
+      idleState = {
+        ...idleState,
+        position: sample.position,
+        velocity: { x: 0, y: 0 },
+        settled: false,
+      };
+      paintTrigger();
+    };
+
+    const pointerUp = (event: PointerEvent) => {
+      if (drag?.pointerId !== event.pointerId || !idleState) return;
+      const sample = drag.gesture.update(
+        { x: event.clientX, y: event.clientY },
+        performance.now(),
+      );
+      drag = null;
+      if (trigger.hasPointerCapture(event.pointerId))
+        trigger.releasePointerCapture(event.pointerId);
+      layer.dataset.dragging = "false";
+      if (sample.dragged) {
+        idleState = { ...idleState, position: sample.position, settled: false };
+        paintTrigger();
+        recoil(sample.velocity);
+      } else {
+        // Pointer release owns clicks; the following native click must not repeat a drop.
+        playRef.current();
+      }
+    };
+
+    const pointerCancel = (event: PointerEvent) => {
+      if (drag?.pointerId !== event.pointerId) return;
+      drag = null;
+      if (trigger.hasPointerCapture(event.pointerId))
+        trigger.releasePointerCapture(event.pointerId);
+      layer.dataset.dragging = "false";
+      recoil({ x: 0, y: 0 });
+    };
+
     const reset = () => {
       stop();
       void initialize();
+    };
+    const scroll = () => {
+      if (drag) reset();
     };
     const resize = new ResizeObserver(reset);
     resize.observe(host);
@@ -234,6 +371,14 @@ export default function HeroBall() {
       }
     });
     intersection.observe(host);
+    trigger.addEventListener("pointerdown", pointerDown);
+    trigger.addEventListener("lostpointercapture", pointerCancel);
+    // Keep receiving the gesture after the pointer leaves the small hit target.
+    window.addEventListener("pointermove", pointerMove);
+    window.addEventListener("pointerup", pointerUp);
+    window.addEventListener("pointercancel", pointerCancel);
+    window.addEventListener("scroll", scroll, { passive: true });
+    window.addEventListener("blur", reset);
     media.addEventListener("change", reset);
     window.addEventListener("resize", reset);
     document.addEventListener("visibilitychange", reset);
@@ -246,6 +391,13 @@ export default function HeroBall() {
       cancelAnimationFrame(idleFrameId);
       resize.disconnect();
       intersection.disconnect();
+      trigger.removeEventListener("pointerdown", pointerDown);
+      trigger.removeEventListener("lostpointercapture", pointerCancel);
+      window.removeEventListener("pointermove", pointerMove);
+      window.removeEventListener("pointerup", pointerUp);
+      window.removeEventListener("pointercancel", pointerCancel);
+      window.removeEventListener("scroll", scroll);
+      window.removeEventListener("blur", reset);
       media.removeEventListener("change", reset);
       window.removeEventListener("resize", reset);
       document.removeEventListener("visibilitychange", reset);
@@ -269,8 +421,10 @@ export default function HeroBall() {
         className={styles.ballTrigger}
         disabled={!ready}
         aria-disabled={running || !ready}
-        aria-label="点击小球，松开绳子"
-        onClick={() => playRef.current()}
+        aria-label="单击小球掉落，按住拖拽"
+        onClick={(event) => {
+          if (event.detail === 0) playRef.current();
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
@@ -280,7 +434,7 @@ export default function HeroBall() {
       >
         <span className={styles.ballSurface} aria-hidden="true" />
         <span className={styles.ballHint} aria-hidden="true">
-          点击小球，松开绳子
+          单击掉落 · 按住拖拽
         </span>
       </button>
       <div className={styles.ballMotionViewport} aria-hidden="true">

@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createBallGesture,
+  createElasticReturn,
+  elasticDragPosition,
+} from "../components/sections/hero/hero-ball-drag.ts";
+import {
   samplePendulum,
   SWING_DURATION_MS,
 } from "../components/sections/hero/hero-ball-pendulum.ts";
@@ -79,6 +84,92 @@ const quad = (left, top, right, bottom) => [
   { x: right, y: bottom },
   { x: left, y: bottom },
 ];
+
+test("pointer jitter remains a click, but a drag stays a drag even after returning to the start", () => {
+  const gesture = createBallGesture(
+    { x: 500, y: 80 },
+    { x: 510, y: 80 },
+    (p) => p,
+  );
+  assert.equal(gesture.update({ x: 502, y: 82 }, 0).dragged, false);
+  const moved = gesture.update({ x: 550, y: 130 }, 30);
+  assert.equal(moved.dragged, true);
+  assert.deepEqual(moved.position, { x: 560, y: 130 });
+  assert.equal(gesture.update({ x: 500, y: 80 }, 70).dragged, true);
+});
+
+test("drag release uses recent movement but a held ball has no throw velocity", () => {
+  const gesture = createBallGesture(
+    { x: 500, y: 80 },
+    { x: 500, y: 80 },
+    (p) => p,
+  );
+  gesture.update({ x: 520, y: 80 }, 0);
+  const moving = gesture.update({ x: 544, y: 92 }, 60);
+  assert.ok(moving.velocity.x > 0 && moving.velocity.y > 0);
+  assert.ok(Math.hypot(moving.velocity.x, moving.velocity.y) <= 450.001);
+  assert.deepEqual(gesture.update({ x: 544, y: 92 }, 250).velocity, {
+    x: 0,
+    y: 0,
+  });
+});
+
+test("the elastic rope stretches beyond its hanging length without unbounded extension", () => {
+  const anchor = { x: 500, y: 0 };
+  assert.deepEqual(elasticDragPosition(anchor, 80, { x: 540, y: 180 }), {
+    x: 540,
+    y: 180,
+  });
+  const far = elasticDragPosition(anchor, 80, { x: 2000, y: 2000 });
+  assert.ok(Math.hypot(far.x - anchor.x, far.y - anchor.y) <= 320.001);
+  assert.ok(elasticDragPosition(anchor, 80, { x: 500, y: -100 }).y >= 20);
+});
+
+test("a stretched rope releases without a position jump, rebounds and settles at the shortened hanging position", () => {
+  const origin = { x: 500, y: 80 };
+  const initial = { x: 550, y: 240 };
+  const spring = createElasticReturn(origin, 80, initial, { x: 0, y: 0 });
+  assert.deepEqual(spring.advance(0).position, initial);
+  const early = spring.advance(100);
+  assert.ok(early.position.y < initial.y - 10);
+  let snapshot = early;
+  let crossedRest = false;
+  for (let i = 0; i < 960; i++) {
+    snapshot = spring.advance(1000 / 120);
+    assert.ok(Number.isFinite(snapshot.position.x + snapshot.position.y));
+    assert.ok(snapshot.position.y >= 20);
+    crossedRest ||=
+      snapshot.position.x < origin.x || snapshot.position.y < origin.y;
+    if (snapshot.settled) break;
+  }
+  assert.ok(crossedRest);
+  assert.equal(snapshot.settled, true);
+  assert.deepEqual(snapshot.position, origin);
+  assert.deepEqual(snapshot.velocity, { x: 0, y: 0 });
+});
+
+test("elastic recoil is consistent across refresh rates and damps a strong pull", () => {
+  const sample = (fps) => {
+    const spring = createElasticReturn(
+      { x: 500, y: 80 },
+      80,
+      { x: 720, y: 150 },
+      { x: 400, y: 200 },
+    );
+    let result;
+    for (let i = 0; i < fps * 2; i++) result = spring.advance(1000 / fps);
+    return result;
+  };
+  const low = sample(30),
+    high = sample(120);
+  assert.ok(
+    Math.hypot(
+      low.position.x - high.position.x,
+      low.position.y - high.position.y,
+    ) < 0.1,
+  );
+  assert.ok(Math.hypot(low.position.x - 500, low.position.y - 80) < 100);
+});
 
 test("the suspended ball swings on a fixed-length rope, then comes to rest", () => {
   const origin = { x: 800, y: 32 };
