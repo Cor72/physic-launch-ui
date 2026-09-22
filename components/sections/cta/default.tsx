@@ -17,8 +17,8 @@ interface CTAProps {
 
 const DEFAULT_CTA_BUTTONS: CTAButtonProps[] = [
   {
-    href: siteConfig.getStartedUrl,
-    text: "观看动态演示",
+    href: siteConfig.registerUrl,
+    text: "注册并进入画布",
     variant: "white",
   },
 ];

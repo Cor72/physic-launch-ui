@@ -1,3 +1,4 @@
+import { HomeSessionGate } from "../components/auth/home-session-gate";
 import CTA from "../components/sections/cta/default";
 import FAQ from "../components/sections/faq/default";
 import Footer from "../components/sections/footer/default";
@@ -11,20 +12,22 @@ import { LayoutLines } from "../components/ui/layout-lines";
 
 export default function Home() {
   return (
-    <main
-      id="home"
-      className="bg-background text-foreground min-h-screen w-full"
-    >
-      <LayoutLines />
-      <Navbar />
-      <Hero />
-      <Logos />
-      <Items />
-      <Stats />
-      <Pricing />
-      <FAQ />
-      <CTA />
-      <Footer />
-    </main>
+    <HomeSessionGate>
+      <main
+        id="home"
+        className="bg-background text-foreground min-h-[100dvh] w-full"
+      >
+        <LayoutLines />
+        <Navbar />
+        <Hero />
+        <Logos />
+        <Items />
+        <Stats />
+        <Pricing />
+        <FAQ />
+        <CTA />
+        <Footer />
+      </main>
+    </HomeSessionGate>
   );
 }

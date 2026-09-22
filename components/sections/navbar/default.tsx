@@ -54,6 +54,9 @@ export default function Navbar({
   name = siteConfig.name,
   homeUrl = siteConfig.homeUrl,
   mobileLinks = [
+    { text: "登录", href: siteConfig.loginUrl },
+    { text: "注册", href: siteConfig.registerUrl },
+    { text: "游客体验", href: siteConfig.canvasUrl },
     { text: "动态演示", href: siteConfig.getStartedUrl },
     { text: "核心功能", href: siteConfig.links.features },
     { text: "题型模型", href: siteConfig.links.models },
@@ -62,12 +65,18 @@ export default function Navbar({
     { text: "常见问题", href: siteConfig.links.faq },
   ],
   actions = [
-    { text: "常见问题", href: siteConfig.links.faq, isButton: false },
+    { text: "登录", href: siteConfig.loginUrl, isButton: false },
     {
-      text: "观看演示",
-      href: siteConfig.getStartedUrl,
+      text: "注册",
+      href: siteConfig.registerUrl,
       isButton: true,
       variant: "white",
+    },
+    {
+      text: "游客体验",
+      href: siteConfig.canvasUrl,
+      isButton: true,
+      variant: "default",
     },
   ],
   showNavigation = true,

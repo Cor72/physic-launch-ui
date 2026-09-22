@@ -33,8 +33,8 @@ interface HeroProps {
 
 const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
   {
-    href: siteConfig.getStartedUrl,
-    text: "观看动态演示",
+    href: siteConfig.canvasUrl,
+    text: "游客体验画布",
     variant: "white",
   },
   {
