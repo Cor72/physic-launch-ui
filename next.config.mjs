@@ -6,7 +6,7 @@ import { resolveInternalOrigin } from "./lib/server-origin.mjs";
 const root = dirname(fileURLToPath(import.meta.url));
 const canvasOrigin = resolveInternalOrigin(process.env.PHYSICS_CANVAS_ORIGIN, {
   name: "PHYSICS_CANVAS_ORIGIN",
-  fallback: "http://127.0.0.1:4481",
+  fallback: "http://127.0.0.1:4173",
 });
 
 /** @type {import('next').NextConfig} */
