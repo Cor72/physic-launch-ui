@@ -29,7 +29,7 @@ const SAFE_RESPONSE_HEADERS = Object.freeze([
 ]);
 
 export type PlatformRouteRule = Readonly<{
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "PUT";
   pathPattern: RegExp;
   maxBodyBytes: number;
   timeoutMs: number;
@@ -65,6 +65,8 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
   // side-effect-free platform endpoints; capability flags remain authoritative.
   route("GET", exact("/api/v3/auth/bootstrap")),
   route("GET", exact("/api/v3/auth/account")),
+  route("GET", exact("/api/v3/auth/jyeoo-profile")),
+  route("PUT", exact("/api/v3/auth/jyeoo-profile")),
   route("POST", exact("/api/v3/auth/challenges")),
   route("POST", exact("/api/v3/auth/login")),
   route("POST", exact("/api/v3/auth/wechat/challenges")),

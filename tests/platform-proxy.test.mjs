@@ -20,6 +20,8 @@ test("the anchored route table exposes the canvas contract and nothing administr
     ["/api/user/v1/billing/assets", "GET"],
     ["/api/v3/auth/bootstrap", "GET"],
     ["/api/v3/auth/account", "GET"],
+    ["/api/v3/auth/jyeoo-profile", "GET"],
+    ["/api/v3/auth/jyeoo-profile", "PUT"],
     ["/api/v3/auth/challenges", "POST"],
     ["/api/v3/auth/login", "POST"],
     ["/api/v3/auth/wechat/challenges", "POST"],
