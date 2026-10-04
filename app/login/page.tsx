@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { AuthForm } from "@/components/auth/auth-form";
-import { safeReturnTo } from "@/lib/user-session";
 
 export const metadata: Metadata = { title: "登录" };
 
@@ -17,11 +17,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const intent = (Array.isArray(query.intent) ? query.intent[0] : query.intent) === "ai"
     ? "ai"
     : undefined;
-  return (
-    <AuthForm
-      mode="login"
-      returnTo={safeReturnTo(query.returnTo)}
-      intent={intent}
-    />
-  );
+  if (query.returnTo !== undefined) {
+    redirect(intent ? "/login?intent=ai" : "/login");
+  }
+  return <AuthForm mode="login" intent={intent} />;
 }

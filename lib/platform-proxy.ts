@@ -54,11 +54,8 @@ const route = (
 });
 
 export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze([
-  // Launch UI authentication remains the only registration surface.
-  route("POST", exact("/api/user/v1/auth/register")),
-  route("POST", exact("/api/user/v1/auth/login")),
-  route("POST", exact("/api/user/v1/auth/logout")),
-  route("GET", exact("/api/user/v1/auth/me")),
+  // Public authentication is intentionally exposed only through the v3 phone
+  // flow shared with the canvas. The legacy username endpoints stay private.
   route("GET", exact("/api/user/v1/billing/assets")),
 
   // Canvas account facade (A1-A8). Unavailable methods still have explicit,
@@ -69,6 +66,7 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
   route("PUT", exact("/api/v3/auth/jyeoo-profile")),
   route("POST", exact("/api/v3/auth/challenges")),
   route("POST", exact("/api/v3/auth/login")),
+  route("POST", exact("/api/v3/auth/register")),
   route("POST", exact("/api/v3/auth/wechat/challenges")),
   route("GET", new RegExp(`^/api/v3/auth/wechat/challenges/${canvasId}$`)),
   route("GET", new RegExp(`^/api/v3/auth/wechat/qr/${canvasId}$`)),

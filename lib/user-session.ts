@@ -10,12 +10,6 @@ export function createBrowserPlatformClient() {
   return createPlatformApiClient({ baseUrl });
 }
 
-export function safeReturnTo(value: string | string[] | undefined): "/canvas" {
-  return (Array.isArray(value) ? value[0] : value) === "/canvas"
-    ? "/canvas"
-    : "/canvas";
-}
-
 export function apiErrorMessage(error: unknown, fallback: string): string {
   if (!error || typeof error !== "object") return fallback;
   const candidate = error as {

@@ -13,10 +13,6 @@ const operationId = "00000000-0000-4000-8000-000000000001";
 
 test("the anchored route table exposes the canvas contract and nothing administrative", () => {
   const routes = [
-    ["/api/user/v1/auth/register", "POST"],
-    ["/api/user/v1/auth/login", "POST"],
-    ["/api/user/v1/auth/logout", "POST"],
-    ["/api/user/v1/auth/me", "GET"],
     ["/api/user/v1/billing/assets", "GET"],
     ["/api/v3/auth/bootstrap", "GET"],
     ["/api/v3/auth/account", "GET"],
@@ -24,6 +20,7 @@ test("the anchored route table exposes the canvas contract and nothing administr
     ["/api/v3/auth/jyeoo-profile", "PUT"],
     ["/api/v3/auth/challenges", "POST"],
     ["/api/v3/auth/login", "POST"],
+    ["/api/v3/auth/register", "POST"],
     ["/api/v3/auth/wechat/challenges", "POST"],
     ["/api/v3/auth/wechat/challenges/challenge_1", "GET"],
     ["/api/v3/auth/wechat/qr/media_1", "GET"],
@@ -47,10 +44,13 @@ test("the anchored route table exposes the canvas contract and nothing administr
     ["/api/admin/v1/providers", "GET"],
     ["/api/admin/v1/billing/orders", "GET"],
     ["/api/v1/providers", "GET"],
-    ["/api/v3/auth/register", "POST"],
     ["/api/v3/auth/bootstrap/extra", "GET"],
     ["/api/v3/usage/operations/not-a-uuid", "GET"],
     ["/api/v3/auth/bootstrap", "POST"],
+    ["/api/user/v1/auth/register", "POST"],
+    ["/api/user/v1/auth/login", "POST"],
+    ["/api/user/v1/auth/logout", "POST"],
+    ["/api/user/v1/auth/me", "GET"],
   ]) assert.equal(isAllowedPlatformRoute(path, method), false, `${method} ${path}`);
   assert.ok(PLATFORM_ROUTE_RULES.every(rule => rule.pathPattern.source.startsWith("^") && rule.pathPattern.source.endsWith("$")));
 });
