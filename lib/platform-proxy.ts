@@ -85,17 +85,14 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
   route("POST", exact("/api/v3/usage/quotes")),
   route("POST", exact("/api/v3/usage/authorizations")),
   route("GET", new RegExp(`^/api/v3/usage/operations/${uuid}$`)),
+  route("POST", new RegExp(`^/api/v3/usage/operations/${uuid}/close$`)),
+  route("POST", new RegExp(`^/api/v3/usage/operations/${uuid}/deliveries$`)),
   route("POST", new RegExp(`^/api/v3/usage/operations/${uuid}/stages$`), {
     maxBodyBytes: MULTIPART_BODY_LIMIT,
     timeoutMs: PROVIDER_TIMEOUT_MS,
   }),
   route("GET", exact("/api/v3/problem-upload-policy")),
 
-  // Retained only for the legacy canvas until multi-stage usage is enabled.
-  route("POST", exact("/api/v3/problem-analysis"), {
-    maxBodyBytes: MULTIPART_BODY_LIMIT,
-    timeoutMs: PROVIDER_TIMEOUT_MS,
-  }),
 ]);
 
 type FetchLike = typeof fetch;

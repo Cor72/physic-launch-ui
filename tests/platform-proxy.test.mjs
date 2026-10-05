@@ -35,9 +35,10 @@ test("the anchored route table exposes the canvas contract and nothing administr
     ["/api/v3/usage/quotes", "POST"],
     ["/api/v3/usage/authorizations", "POST"],
     [`/api/v3/usage/operations/${operationId}`, "GET"],
+    [`/api/v3/usage/operations/${operationId}/close`, "POST"],
+    [`/api/v3/usage/operations/${operationId}/deliveries`, "POST"],
     [`/api/v3/usage/operations/${operationId}/stages`, "POST"],
     ["/api/v3/problem-upload-policy", "GET"],
-    ["/api/v3/problem-analysis", "POST"],
   ];
   for (const [path, method] of routes) assert.equal(isAllowedPlatformRoute(path, method), true, `${method} ${path}`);
   for (const [path, method] of [
@@ -51,6 +52,7 @@ test("the anchored route table exposes the canvas contract and nothing administr
     ["/api/user/v1/auth/login", "POST"],
     ["/api/user/v1/auth/logout", "POST"],
     ["/api/user/v1/auth/me", "GET"],
+    ["/api/v3/problem-analysis", "POST"],
   ]) assert.equal(isAllowedPlatformRoute(path, method), false, `${method} ${path}`);
   assert.ok(PLATFORM_ROUTE_RULES.every(rule => rule.pathPattern.source.startsWith("^") && rule.pathPattern.source.endsWith("$")));
 });
@@ -73,7 +75,7 @@ test("encoded, ambiguous and traversal-shaped paths fail before route matching",
 });
 
 test("provider routes use the 1.2 MB and 65 second envelope; ordinary routes stay bounded", () => {
-  for (const path of ["/api/v3/problem-analysis", `/api/v3/usage/operations/${operationId}/stages`]) {
+  for (const path of [`/api/v3/usage/operations/${operationId}/stages`]) {
     const rule = findPlatformRoute(path, "POST");
     assert.equal(rule?.maxBodyBytes, 1_200_000);
     assert.equal(rule?.timeoutMs, 65_000);
