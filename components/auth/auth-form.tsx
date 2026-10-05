@@ -24,7 +24,10 @@ import {
 import LaunchUI from "@/components/logos/launch-ui";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/mode-toggle";
-import { publishAuthSessionChange } from "@/lib/auth-session-sync";
+import {
+  publishAuthSessionChange,
+  subscribeAuthSessionChanges,
+} from "@/lib/auth-session-sync";
 import {
   apiErrorMessage,
   createBrowserPlatformClient,
@@ -130,6 +133,11 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
       bootstrapController.current = null;
     };
   }, [connect]);
+
+  useEffect(
+    () => subscribeAuthSessionChanges(() => void connect()),
+    [connect],
+  );
 
   useEffect(() => {
     if (retryAt <= Date.now()) return;

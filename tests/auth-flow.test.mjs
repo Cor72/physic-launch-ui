@@ -82,6 +82,8 @@ test("homepage renders immediately and only enhances navigation with session sta
 
 test("homepage and canvas reconcile session changes with the server", () => {
   assert.match(authForm, /publishAuthSessionChange\(\)/);
+  assert.match(authForm, /subscribeAuthSessionChanges/);
+  assert.match(authForm, /subscribeAuthSessionChanges\(\(\) => void connect\(\)\)/);
   assert.match(navbar, /subscribeAuthSessionChanges/);
   assert.match(navbar, /data\.account[\s\S]*:\s*""/);
   assert.match(navbar, /visibilitychange/);
