@@ -11,6 +11,7 @@ const canvasOrigin = resolveInternalOrigin(process.env.PHYSICS_CANVAS_ORIGIN, {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  agentRules: false,
   allowedDevOrigins: ["127.0.0.1"],
   turbopack: {
     root: dirname(root),
@@ -19,6 +20,15 @@ const nextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
+        ...[
+          "xingchi-vision-mark.svg",
+          "xingchi-vision-micro.svg",
+          "xingchi-vision-wordmark.svg",
+          "xingchi-ai-aperture-mark.png",
+        ].map((asset) => ({
+          source: `/${asset}`,
+          destination: `${canvasOrigin}/canvas/${asset}`,
+        })),
         {
           source: "/canvas",
           destination: `${canvasOrigin}/canvas/`,

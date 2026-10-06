@@ -35,8 +35,22 @@ test("internal service origins allow HTTPS and loopback HTTP only", () => {
 
 test("the unified site owns /canvas and defaults to the final canvas development port", async () => {
   const config = await readFile(new URL("../next.config.mjs", import.meta.url), "utf8");
+  assert.match(config, /agentRules:\s*false/);
   assert.match(config, /allowedDevOrigins:\s*\["127\.0\.0\.1"\]/);
   assert.match(config, /fallback:\s*"http:\/\/127\.0\.0\.1:4481"/);
   assert.match(config, /source:\s*"\/canvas"[\s\S]*destination:\s*`\$\{canvasOrigin\}\/canvas\/`/);
   assert.match(config, /source:\s*"\/canvas\/:path\*"[\s\S]*destination:\s*`\$\{canvasOrigin\}\/canvas\/:path\*`/);
+  for (const asset of [
+    "xingchi-vision-mark.svg",
+    "xingchi-vision-micro.svg",
+    "xingchi-vision-wordmark.svg",
+    "xingchi-ai-aperture-mark.png",
+  ]) {
+    assert.match(config, new RegExp(asset.replace(".", "\\.")));
+  }
+  assert.match(
+    config,
+    /destination:\s*`\$\{canvasOrigin\}\/canvas\/\$\{asset\}`/,
+    "legacy absolute brand paths must remain available without editing the protected V4 App",
+  );
 });
