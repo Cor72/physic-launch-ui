@@ -13,6 +13,7 @@ const SAFE_REQUEST_HEADERS = Object.freeze([
   "x-usage-authorization",
   "x-usage-stage",
   "user-agent",
+  "sec-fetch-site",
 ]);
 
 const SAFE_RESPONSE_HEADERS = Object.freeze([
@@ -92,6 +93,7 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
     timeoutMs: PROVIDER_TIMEOUT_MS,
   }),
   route("GET", exact("/api/v3/problem-upload-policy")),
+  route("POST", exact("/api/v3/traffic/visits"), { maxBodyBytes: 1_024 }),
 
 ]);
 

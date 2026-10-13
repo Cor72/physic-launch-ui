@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
+import { TrafficVisitTracker } from "@/components/traffic-visit-tracker";
 import { inter } from "@/lib/fonts";
 
 import { siteConfig } from "../config/site";
@@ -73,6 +74,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <TrafficVisitTracker />
           {children}
         </ThemeProvider>
       </body>

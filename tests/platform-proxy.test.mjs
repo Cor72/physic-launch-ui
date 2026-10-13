@@ -39,6 +39,7 @@ test("the anchored route table exposes the canvas contract and nothing administr
     [`/api/v3/usage/operations/${operationId}/deliveries`, "POST"],
     [`/api/v3/usage/operations/${operationId}/stages`, "POST"],
     ["/api/v3/problem-upload-policy", "GET"],
+    ["/api/v3/traffic/visits", "POST"],
   ];
   for (const [path, method] of routes) assert.equal(isAllowedPlatformRoute(path, method), true, `${method} ${path}`);
   for (const [path, method] of [
@@ -83,6 +84,7 @@ test("provider routes use the 1.2 MB and 65 second envelope; ordinary routes sta
   const login = findPlatformRoute("/api/v3/auth/login", "POST");
   assert.equal(login?.maxBodyBytes, 16_384);
   assert.equal(login?.timeoutMs, 15_000);
+  assert.equal(findPlatformRoute("/api/v3/traffic/visits", "POST")?.maxBodyBytes, 1_024);
 });
 
 test("the proxy forwards only approved session and usage headers and preserves multiple cookies", async () => {
