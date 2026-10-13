@@ -11,6 +11,19 @@ import {
 const platformOrigin = "http://127.0.0.1:14300";
 const operationId = "00000000-0000-4000-8000-000000000001";
 
+test("the private Compose API hostname is allowed without opening arbitrary HTTP origins", async () => {
+  const response = await proxyPlatformRequest(
+    new Request("http://127.0.0.1:4400/api/v3/auth/bootstrap"),
+    "http://api:3000",
+    async (url) => {
+      assert.equal(String(url), "http://api:3000/api/v3/auth/bootstrap");
+      return Response.json({ data: { authenticated: false } });
+    },
+  );
+
+  assert.equal(response.status, 200);
+});
+
 test("the anchored route table exposes the canvas contract and nothing administrative", () => {
   const routes = [
     ["/api/user/v1/billing/assets", "GET"],

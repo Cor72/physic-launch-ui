@@ -7,12 +7,15 @@ const root = dirname(fileURLToPath(import.meta.url));
 const canvasOrigin = resolveInternalOrigin(process.env.PHYSICS_CANVAS_ORIGIN, {
   name: "PHYSICS_CANVAS_ORIGIN",
   fallback: "http://127.0.0.1:4481",
+  allowedHttpHosts: ["canvas"],
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   agentRules: false,
   allowedDevOrigins: ["127.0.0.1"],
+  output: "standalone",
+  outputFileTracingRoot: dirname(root),
   turbopack: {
     root: dirname(root),
   },

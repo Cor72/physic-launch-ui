@@ -4,7 +4,15 @@ import test from "node:test";
 
 import { resolveInternalOrigin } from "../lib/server-origin.mjs";
 
-test("internal service origins allow HTTPS and loopback HTTP only", () => {
+test("internal service origins allow HTTPS, loopback HTTP and explicit private hosts only", () => {
+  assert.equal(
+    resolveInternalOrigin("http://canvas:8080", {
+      name: "PHYSICS_CANVAS_ORIGIN",
+      fallback: "http://127.0.0.1:4481",
+      allowedHttpHosts: ["canvas"],
+    }),
+    "http://canvas:8080",
+  );
   assert.equal(
     resolveInternalOrigin("http://127.0.0.1:4481", {
       name: "PHYSICS_CANVAS_ORIGIN",
@@ -28,6 +36,7 @@ test("internal service origins allow HTTPS and loopback HTTP only", () => {
       resolveInternalOrigin(value, {
         name: "PHYSICS_CANVAS_ORIGIN",
         fallback: "http://127.0.0.1:4481",
+        allowedHttpHosts: ["canvas"],
       }),
     );
   }

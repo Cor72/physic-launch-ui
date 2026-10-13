@@ -110,13 +110,16 @@ function resolvePlatformOrigin(value: string | undefined): URL | null {
   try {
     const origin = new URL(value || "http://127.0.0.1:14300");
     const loopback = ["127.0.0.1", "localhost", "[::1]"].includes(origin.hostname);
+    const explicitlyAllowedPrivateHttp = origin.protocol === "http:" && origin.hostname === "api";
     if (
       origin.username ||
       origin.password ||
       origin.pathname !== "/" ||
       origin.search ||
       origin.hash ||
-      (origin.protocol !== "https:" && !(origin.protocol === "http:" && loopback))
+      (origin.protocol !== "https:" &&
+        !(origin.protocol === "http:" && loopback) &&
+        !explicitlyAllowedPrivateHttp)
     ) return null;
     return origin;
   } catch {
