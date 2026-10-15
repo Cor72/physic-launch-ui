@@ -34,12 +34,12 @@ interface HeroProps {
 const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
   {
     href: siteConfig.canvasUrl,
-    text: "游客体验画布",
+    text: "免费体验画布",
     variant: "white",
   },
   {
-    href: siteConfig.links.features,
-    text: "了解核心功能",
+    href: siteConfig.links.pricing,
+    text: "查看积分套餐",
     variant: "glow",
     icon: <BookOpenIcon className="mr-2 size-4" />,
   },
@@ -47,9 +47,9 @@ const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
 
 const DEFAULT_HERO_BADGE = (
   <Badge variant="outline" className="motion-safe:animate-appear flex-wrap">
-    <span className="text-muted-foreground">让物理过程看得见</span>
+    <span className="text-muted-foreground">在线可用</span>
     <a href={siteConfig.getStartedUrl} className="flex items-center gap-1">
-      查看演示
+      查看实际演示
       <ArrowRightIcon className="size-3" />
     </a>
   </Badge>
@@ -60,7 +60,7 @@ const HERO_PREVIEWS = [
     name: "tasks",
     type: "image",
     srcLight: taskPreview,
-    alt: "学习平台页面预览",
+    alt: "星驰视界题目识别页面预览",
   },
   {
     name: "problem",
@@ -118,9 +118,9 @@ function HeroShowcase() {
 }
 
 export default function Hero({
-  title1 = "悟言视界",
-  title2 = "AI动态题目可视化学习平台",
-  description1 = "把看不懂的物理题，变成看得见、能操作的动态过程。面向学生理解与教师讲授，用运动、受力和轨迹还原题目中的物理情境。",
+  title1 = "星驰视界",
+  title2 = "让物理题变成可观察的动态过程",
+  description1 = "上传物理题目图片，识别题意并生成可交互的动态画布，直观看见运动、受力与轨迹。",
   mockup,
   badge = DEFAULT_HERO_BADGE,
   buttons = DEFAULT_HERO_BUTTONS,

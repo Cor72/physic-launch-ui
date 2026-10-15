@@ -1,12 +1,12 @@
-import { siteConfig } from "@/config/site";
+import { ImageUpIcon, PanelsTopLeftIcon, SparklesIcon } from "lucide-react";
+import { ReactNode } from "react";
 
 import { Section } from "../../ui/section";
 
 interface StatItemProps {
-  label?: string;
-  value: string | number;
-  suffix?: string;
-  description?: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
 }
 
 interface StatsProps {
@@ -16,28 +16,19 @@ interface StatsProps {
 
 const DEFAULT_STATS: StatItemProps[] = [
   {
-    label: "首期聚焦",
-    value: siteConfig.stats.models,
-    suffix: "类",
-    description: "优先打磨的高频物理模型",
+    title: "上传题目",
+    description: "选择清晰、完整且不含无关个人信息的物理题图片。",
+    icon: <ImageUpIcon className="size-5" />,
   },
   {
-    label: "服务对象",
-    value: siteConfig.stats.audiences,
-    suffix: "类",
-    description: "学生自主学习与教师课堂讲授",
+    title: "核对识别结果",
+    description: "检查题意、物体和已知条件，避免模糊图片影响生成。",
+    icon: <SparklesIcon className="size-5" />,
   },
   {
-    label: "学习路径",
-    value: siteConfig.stats.steps,
-    suffix: "步",
-    description: "识别题意、确认条件、观察过程、调参探索",
-  },
-  {
-    label: "技术分工",
-    value: siteConfig.stats.layers,
-    suffix: "层",
-    description: "题意分析、确定性计算与交互渲染",
+    title: "观察动态过程",
+    description: "进入生成的画布，通过播放、暂停和调整继续探索。",
+    icon: <PanelsTopLeftIcon className="size-5" />,
   },
 ];
 
@@ -46,35 +37,33 @@ export default function Stats({
   className,
 }: StatsProps) {
   return (
-    <Section className={className}>
-      <div className="container mx-auto max-w-[960px]">
+    <Section id="workflow" className={className}>
+      <div className="container mx-auto flex max-w-[960px] flex-col gap-10">
+        <div className="max-w-[640px]">
+          <p className="text-brand mb-3 text-sm font-semibold">使用流程</p>
+          <h2 className="text-3xl leading-tight font-semibold sm:text-5xl">
+            三个动作，看见题目里的运动
+          </h2>
+        </div>
         {items !== false && items.length > 0 && (
-          <div className="grid grid-cols-2 gap-12 sm:grid-cols-4">
-            {items.map((item) => (
+          <div className="border-border grid overflow-hidden rounded-2xl border bg-card/50 md:grid-cols-3">
+            {items.map((item, index) => (
               <div
-                key={`${item.label}-${item.description}`}
-                className="flex flex-col items-start gap-3 text-left"
+                key={item.title}
+                className="border-border relative flex flex-col gap-4 border-b p-6 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0 sm:p-8"
               >
-                {item.label && (
-                  <div className="text-muted-foreground text-sm font-semibold">
-                    {item.label}
-                  </div>
-                )}
-                <div className="flex items-baseline gap-2">
-                  <div className="from-foreground to-foreground dark:to-brand bg-linear-to-r bg-clip-text text-4xl font-medium text-transparent drop-shadow-[2px_1px_24px_var(--brand-foreground)] transition-all duration-300 sm:text-5xl md:text-6xl">
-                    {item.value}
-                  </div>
-                  {item.suffix && (
-                    <div className="text-brand text-2xl font-semibold">
-                      {item.suffix}
-                    </div>
-                  )}
+                <div className="flex items-center justify-between">
+                  <span className="bg-brand/10 text-brand grid size-10 place-items-center rounded-full">
+                    {item.icon}
+                  </span>
+                  <span className="text-muted-foreground text-xs font-semibold tabular-nums">
+                    0{index + 1}
+                  </span>
                 </div>
-                {item.description && (
-                  <div className="text-muted-foreground text-sm font-semibold text-pretty">
-                    {item.description}
-                  </div>
-                )}
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>

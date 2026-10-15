@@ -39,32 +39,33 @@ export default function FooterSection({
     {
       title: "探索平台",
       links: [
-        { text: "动态演示", href: siteConfig.getStartedUrl },
+        { text: "实际演示", href: siteConfig.getStartedUrl },
         { text: "核心功能", href: siteConfig.links.features },
-        { text: "题型模型", href: siteConfig.links.models },
+        { text: "使用流程", href: siteConfig.links.workflow },
       ],
     },
     {
-      title: "学习与教学",
+      title: "账户与购买",
       links: [
-        { text: "学生自主学习", href: siteConfig.links.features },
-        { text: "教师课堂讲授", href: siteConfig.links.teachers },
-        { text: "会员方案", href: siteConfig.links.pricing },
+        { text: "登录", href: siteConfig.loginUrl },
+        { text: "注册", href: siteConfig.registerUrl },
+        { text: "积分套餐", href: siteConfig.links.pricing },
       ],
     },
     {
-      title: "了解更多",
+      title: "规则与政策",
       links: [
-        { text: "项目介绍", href: siteConfig.homeUrl },
-        { text: "常见问题", href: siteConfig.links.faq },
-        { text: "功能规划", href: siteConfig.links.features },
+        { text: "用户协议", href: siteConfig.links.terms },
+        { text: "隐私政策", href: siteConfig.links.privacy },
+        { text: "积分购买及退款规则", href: siteConfig.links.pointsPolicy },
       ],
     },
   ],
-  copyright = "© 2026 悟言视界 · 让物理过程看得见",
+  copyright = `© 2026 ${siteConfig.name}`,
   policies = [
-    { text: "数据与隐私说明", href: siteConfig.links.faq },
-    { text: "使用说明", href: siteConfig.links.faq },
+    { text: "用户协议", href: siteConfig.links.terms },
+    { text: "隐私政策", href: siteConfig.links.privacy },
+    { text: "积分与退款", href: siteConfig.links.pointsPolicy },
   ],
   showModeToggle = true,
   className,
@@ -82,6 +83,15 @@ export default function FooterSection({
               <p className="text-muted-foreground max-w-[240px] text-sm leading-relaxed">
                 把抽象的物理题，变成看得见、能探索的动态过程。
               </p>
+              <div className="text-muted-foreground flex max-w-[300px] flex-col gap-2 text-xs leading-relaxed">
+                <span>运营主体：{siteConfig.operator}</span>
+                <a href={`mailto:${siteConfig.supportEmail}`}>
+                  客服邮箱：{siteConfig.supportEmail}
+                </a>
+                <a href={`tel:${siteConfig.supportPhone}`}>
+                  客服电话：{siteConfig.supportPhone}
+                </a>
+              </div>
             </FooterColumn>
             {columns.map((column) => (
               <FooterColumn key={column.title}>
@@ -99,7 +109,17 @@ export default function FooterSection({
             ))}
           </FooterContent>
           <FooterBottom>
-            <div>{copyright}</div>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-start">
+              <span>{copyright}</span>
+              <a
+                href={siteConfig.icpUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-foreground"
+              >
+                {siteConfig.icpNumber}
+              </a>
+            </div>
             <div className="flex flex-wrap items-center gap-4">
               {policies.map((policy) => (
                 <a key={`${policy.href}-${policy.text}`} href={policy.href}>

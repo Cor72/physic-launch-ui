@@ -146,11 +146,11 @@ export default function Navbar({
           { text: "注册", href: siteConfig.registerUrl },
           { text: "游客体验", href: siteConfig.canvasUrl },
         ]),
-    { text: "动态演示", href: siteConfig.getStartedUrl },
+    { text: "实际演示", href: siteConfig.getStartedUrl },
+    { text: "使用流程", href: siteConfig.links.workflow },
     { text: "核心功能", href: siteConfig.links.features },
-    { text: "题型模型", href: siteConfig.links.models },
-    { text: "会员方案", href: siteConfig.links.pricing },
-    { text: "教师使用", href: siteConfig.links.teachers },
+    { text: "适用场景", href: siteConfig.links.models },
+    { text: "积分套餐", href: siteConfig.links.pricing },
     { text: "常见问题", href: siteConfig.links.faq },
   ];
 

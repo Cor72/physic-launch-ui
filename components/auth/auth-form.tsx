@@ -24,6 +24,7 @@ import {
 import LaunchUI from "@/components/logos/launch-ui";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/mode-toggle";
+import { siteConfig } from "@/config/site";
 import {
   publishAuthSessionChange,
   subscribeAuthSessionChanges,
@@ -61,6 +62,8 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
+  const [policyReminder, setPolicyReminder] = useState(0);
   const [code, setCode] = useState("");
   const [challengeId, setChallengeId] = useState("");
   const [csrfToken, setCsrfToken] = useState("");
@@ -69,6 +72,20 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
   const [message, setMessage] = useState("");
   const bootstrapGeneration = useRef(0);
   const bootstrapController = useRef<AbortController | null>(null);
+  const policyInput = useRef<HTMLInputElement>(null);
+  const policyReminderTimer = useRef<number | null>(null);
+
+  const showPolicyReminder = useCallback(() => {
+    if (policyReminderTimer.current) {
+      window.clearTimeout(policyReminderTimer.current);
+    }
+    setPolicyReminder((value) => value + 1);
+    policyReminderTimer.current = window.setTimeout(
+      () => setPolicyReminder(0),
+      2_600,
+    );
+    policyInput.current?.focus();
+  }, []);
 
   const connect = useCallback(async () => {
     const generation = ++bootstrapGeneration.current;
@@ -134,16 +151,22 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
     };
   }, [connect]);
 
-  useEffect(
-    () => subscribeAuthSessionChanges(() => void connect()),
-    [connect],
-  );
+  useEffect(() => subscribeAuthSessionChanges(() => void connect()), [connect]);
 
   useEffect(() => {
     if (retryAt <= Date.now()) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(timer);
   }, [retryAt]);
+
+  useEffect(
+    () => () => {
+      if (policyReminderTimer.current) {
+        window.clearTimeout(policyReminderTimer.current);
+      }
+    },
+    [],
+  );
 
   const alternatePath = mode === "login" ? "/register" : "/login";
   const alternateHref = intent
@@ -209,6 +232,10 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || checking) return;
+    if (mode === "register" && !acceptedPolicies) {
+      showPolicyReminder();
+      return;
+    }
     if (!connected || !csrfToken) {
       setMessage("账户服务尚未连接，请刷新页面后重试。");
       return;
@@ -292,6 +319,17 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
 
   return (
     <main className="bg-background text-foreground relative isolate min-h-[100dvh] overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+      {policyReminder ? (
+        <div
+          key={policyReminder}
+          className="border-primary/25 bg-card text-foreground motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:zoom-in-95 fixed top-5 left-1/2 z-50 flex w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium shadow-xl shadow-orange-950/10 motion-safe:duration-200"
+          role="alert"
+          aria-live="assertive"
+        >
+          <MessageSquareText className="text-primary size-4 shrink-0" />
+          <span>请先勾选并同意用户协议、隐私政策及积分规则</span>
+        </div>
+      ) : null}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,color-mix(in_oklab,var(--brand)_15%,transparent),transparent_32%),radial-gradient(circle_at_80%_85%,color-mix(in_oklab,var(--brand)_9%,transparent),transparent_28%)]" />
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between">
         <Link
@@ -299,7 +337,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
           className="flex items-center gap-2 text-lg font-semibold"
         >
           <LaunchUI />
-          悟言视界
+          {siteConfig.name}
         </Link>
         <ThemeToggle />
       </header>
@@ -469,6 +507,55 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
                 </label>
               ) : null}
 
+              {mode === "register" ? (
+                <div className="border-border bg-muted/35 flex items-start gap-3 rounded-lg border p-3">
+                  <input
+                    ref={policyInput}
+                    id="accept-policies"
+                    className="accent-primary mt-0.5 size-4 shrink-0"
+                    type="checkbox"
+                    aria-required="true"
+                    checked={acceptedPolicies}
+                    onChange={(event) => {
+                      setAcceptedPolicies(event.target.checked);
+                      setPolicyReminder(0);
+                      setMessage("");
+                    }}
+                  />
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    <label htmlFor="accept-policies" className="cursor-pointer">
+                      我已阅读并同意
+                    </label>
+                    <Link
+                      className="text-foreground underline underline-offset-2"
+                      href={siteConfig.links.terms}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      《用户协议》
+                    </Link>
+                    、
+                    <Link
+                      className="text-foreground underline underline-offset-2"
+                      href={siteConfig.links.privacy}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      《隐私政策》
+                    </Link>
+                    及
+                    <Link
+                      className="text-foreground underline underline-offset-2"
+                      href={siteConfig.links.pointsPolicy}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      《积分购买及退款规则》
+                    </Link>
+                  </p>
+                </div>
+              ) : null}
+
               {!hydrated || checking ? (
                 <p
                   className="text-muted-foreground flex items-center gap-2 text-sm"
@@ -504,7 +591,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
                       ? "重新连接账户服务"
                       : mode === "login"
                         ? "登录并进入画布"
-                        : "确认注册并进入画布"}
+                        : "确认注册并登录"}
                 {!busy && !checking ? <ArrowRight /> : null}
               </Button>
             </form>

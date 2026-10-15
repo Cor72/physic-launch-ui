@@ -7,8 +7,6 @@ import {
 } from "lucide-react";
 import { ReactNode } from "react";
 
-import { siteConfig } from "@/config/site";
-
 import { Badge } from "../../ui/badge";
 import Logo from "../../ui/logo";
 import { Section } from "../../ui/section";
@@ -21,10 +19,10 @@ interface LogosProps {
 }
 
 export default function Logos({
-  title = "从高频题型开始，看清每一个运动过程",
+  title = "常见物理场景，都可以从运动过程开始理解",
   badge = (
     <Badge variant="outline" className="border-brand/30 text-brand">
-      首期规划 · {siteConfig.stats.models} 类重点模型
+      常见适用场景
     </Badge>
   ),
   logos = [

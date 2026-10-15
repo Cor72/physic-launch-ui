@@ -106,7 +106,7 @@ export function PricingColumn({
             <div className="flex min-h-[40px] flex-col">
               <span className="text-sm">{billingPeriod}</span>
               <span className="text-muted-foreground text-sm">
-                {price > 0 ? "会员方案预览" : "无需付费"}
+                {price > 0 ? "一次性积分包" : "无需付费"}
               </span>
             </div>
           </div>

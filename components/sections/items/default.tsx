@@ -1,10 +1,8 @@
 import {
   CameraIcon,
-  FolderOpenIcon,
-  LightbulbIcon,
+  CircleUserRoundIcon,
   MoveUpRightIcon,
   PlayCircleIcon,
-  PresentationIcon,
   SlidersHorizontalIcon,
   SplitIcon,
 } from "lucide-react";
@@ -27,49 +25,39 @@ interface ItemsProps {
 
 const DEFAULT_ITEMS: ItemProps[] = [
   {
-    title: "拍照识题",
-    description: "上传图片或输入文字，提取物体、已知条件与待求内容。",
+    title: "题目图片输入",
+    description: "上传清晰的物理题图片，开始识别题意与关键条件。",
     icon: <CameraIcon className="size-5 stroke-1" />,
   },
   {
-    title: "过程拆解",
-    description: "把复杂情境拆成多个阶段，理清先后顺序与关键节点。",
+    title: "题意与条件识别",
+    description: "提取物体、已知量和运动阶段，生成前可以继续核对。",
     icon: <SplitIcon className="size-5 stroke-1" />,
   },
   {
-    title: "动态演示",
-    description: "播放、暂停与回看，在关键时刻停下来观察物体的运动。",
+    title: "动态画布生成",
+    description: "将题目转化为可播放的物理场景，呈现关键运动过程。",
     icon: <PlayCircleIcon className="size-5 stroke-1" />,
   },
   {
-    title: "物理量可视化",
-    description: "同步观察速度、受力与轨迹，联系运动现象和物理规律。",
+    title: "运动过程观察",
+    description: "播放、暂停与回看，对照题目观察受力、速度和轨迹。",
     icon: <MoveUpRightIcon className="size-5 stroke-1" />,
   },
   {
-    title: "参数调节",
-    description: "改变初速度、质量或摩擦系数，比较不同条件下的结果。",
+    title: "对象与参数调整",
+    description: "在画布中调整对象和可用参数，继续验证自己的理解。",
     icon: <SlidersHorizontalIcon className="size-5 stroke-1" />,
   },
   {
-    title: "教师讲授",
-    description: "按阶段展开情境，在关键位置讲解，减少反复画图的负担。",
-    icon: <PresentationIcon className="size-5 stroke-1" />,
-  },
-  {
-    title: "分层启发",
-    description: "先观察情境，再查看受力与提示，为学生保留独立思考空间。",
-    icon: <LightbulbIcon className="size-5 stroke-1" />,
-  },
-  {
-    title: "模型积累",
-    description: "逐步扩充题型模型与学习记录，让每次探索都能回顾复用。",
-    icon: <FolderOpenIcon className="size-5 stroke-1" />,
+    title: "积分与使用记录",
+    description: "登录后查看积分余额和账户记录，清楚了解每次使用。",
+    icon: <CircleUserRoundIcon className="size-5 stroke-1" />,
   },
 ];
 
 export default function Items({
-  title = "把解题过程，一步步看清楚",
+  title = "从题目图片，到可操作的动态画布",
   items = DEFAULT_ITEMS,
   className,
 }: ItemsProps) {
@@ -81,11 +69,11 @@ export default function Items({
             {title}
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            围绕题意理解、物理计算与交互探索逐步完善。以下为核心功能规划，当前可先观看题目与动态场景的示例演示。
+            星驰视界把题目识别、动态生成和交互观察放在同一条学习路径中。生成内容仅作学习辅助，请始终以原题条件和独立判断为准。
           </p>
         </div>
         {items !== false && items.length > 0 && (
-          <div className="grid auto-rows-fr grid-cols-2 gap-0 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+          <div className="grid auto-rows-fr grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
             {items.map((item) => (
               <Item key={item.title}>
                 <ItemTitle className="flex items-center gap-2">

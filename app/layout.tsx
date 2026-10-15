@@ -25,10 +25,10 @@ export const metadata: Metadata = {
   ],
   authors: [
     {
-      name: "悟言视界团队",
+      name: siteConfig.operator,
     },
   ],
-  creator: "悟言视界团队",
+  creator: siteConfig.operator,
   openGraph: {
     type: "website",
     locale: "zh_CN",

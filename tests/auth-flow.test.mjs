@@ -43,6 +43,12 @@ test("registration requires a code, password and matching confirmation", () => {
   assert.match(authForm, /设置密码/);
   assert.match(authForm, /获取验证码/);
   assert.match(authForm, /确认注册/);
+  assert.match(authForm, /aria-required="true"/);
+  assert.match(authForm, /showPolicyReminder/);
+  assert.match(authForm, /请先勾选并同意用户协议、隐私政策及积分规则/);
+  assert.match(authForm, /role="alert"/);
+  assert.match(authForm, /"确认注册并登录"/);
+  assert.doesNotMatch(authForm, /"请先同意协议"/);
 });
 
 test("login offers password and SMS code without a blocking skeleton", () => {
@@ -57,14 +63,23 @@ test("authentication controls cannot accept clicks before hydration and can reco
   assert.match(authForm, /正在加载登录功能/);
   assert.match(authForm, /15_000/);
   assert.match(authForm, /重新连接账户服务/);
-  assert.match(authForm, /onClick=\{connected \? undefined : \(\) => void connect\(\)\}/);
+  assert.match(
+    authForm,
+    /onClick=\{connected \? undefined : \(\) => void connect\(\)\}/,
+  );
 });
 
 test("public authentication has one canonical URL and always returns to the canvas", () => {
   assert.match(authForm, /router\.replace\("\/canvas"\)/);
   assert.doesNotMatch(authForm, /returnTo/);
-  assert.match(loginPage, /redirect\(intent \? "\/login\?intent=ai" : "\/login"\)/);
-  assert.match(registerPage, /redirect\(intent \? "\/register\?intent=ai" : "\/register"\)/);
+  assert.match(
+    loginPage,
+    /redirect\(intent \? "\/login\?intent=ai" : "\/login"\)/,
+  );
+  assert.match(
+    registerPage,
+    /redirect\(intent \? "\/register\?intent=ai" : "\/register"\)/,
+  );
   assert.match(loginPage, /query\.returnTo !== undefined/);
   assert.match(registerPage, /query\.returnTo !== undefined/);
 });
@@ -83,7 +98,10 @@ test("homepage renders immediately and only enhances navigation with session sta
 test("homepage and canvas reconcile session changes with the server", () => {
   assert.match(authForm, /publishAuthSessionChange\(\)/);
   assert.match(authForm, /subscribeAuthSessionChanges/);
-  assert.match(authForm, /subscribeAuthSessionChanges\(\(\) => void connect\(\)\)/);
+  assert.match(
+    authForm,
+    /subscribeAuthSessionChanges\(\(\) => void connect\(\)\)/,
+  );
   assert.match(navbar, /subscribeAuthSessionChanges/);
   assert.match(navbar, /data\.account[\s\S]*:\s*""/);
   assert.match(navbar, /visibilitychange/);

@@ -18,19 +18,19 @@ interface CTAProps {
 const DEFAULT_CTA_BUTTONS: CTAButtonProps[] = [
   {
     href: siteConfig.registerUrl,
-    text: "注册并进入画布",
+    text: "注册并免费体验",
     variant: "white",
   },
 ];
 
 export default function CTA({
-  title = "让每一次讲解，都有看得见的物理过程",
+  title = "从一道题开始，看见物理如何发生",
   buttons = DEFAULT_CTA_BUTTONS,
   className,
 }: CTAProps) {
   return (
     <Section
-      id="teachers"
+      id="start"
       className={cn("group relative overflow-hidden", className)}
     >
       <div className="max-w-container relative z-10 mx-auto flex flex-col items-center gap-6 text-center sm:gap-8">
@@ -38,7 +38,7 @@ export default function CTA({
           {title}
         </h2>
         <p className="text-muted-foreground max-w-[640px] text-base leading-relaxed sm:text-lg">
-          为学生建立清晰的物理图景，也为教师准备更直观的课堂演示。先从这道圆轨道题开始，观察一个完整的运动过程。
+          注册账户后可以进入画布。购买积分前，请先了解积分用途、扣除方式和退款规则。
         </p>
         {buttons !== false && buttons.length > 0 && (
           <div className="flex justify-center gap-4">
