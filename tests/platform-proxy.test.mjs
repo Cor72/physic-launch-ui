@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+test("only a validated edge client IP is forwarded; development and untrusted forwarding headers are ignored", async () => {
+  for (const [edge, trusted, expected] of [["198.51.100.1", true, "198.51.100.1"], ["198.51.100.2", true, "198.51.100.2"], ["bad,198.51.100.1", true, null], ["198.51.100.1", false, null]]) {
+    await proxyPlatformRequest(new Request("http://127.0.0.1:3000/api/v3/auth/bootstrap", { headers: { "x-real-ip": edge, "x-forwarded-for": "203.0.113.99" } }),
+      "http://127.0.0.1:14300", async (_url, options) => {
+        assert.equal(options.headers.get("x-forwarded-for"), expected);
+        assert.equal(options.headers.get("x-real-ip"), expected);
+        return Response.json({});
+      }, trusted);
+  }
+});
+
 import {
   findPlatformRoute,
   isAllowedPlatformRoute,

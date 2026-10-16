@@ -1,5 +1,6 @@
 "use client";
 
+import type { PolicyConsent } from '@physic/contracts';
 import {
   ArrowLeft,
   ArrowRight,
@@ -63,6 +64,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedPolicies, setAcceptedPolicies] = useState(false);
+  const [policyVersions, setPolicyVersions] = useState<Omit<PolicyConsent, 'accepted'> | null>(null);
   const [policyReminder, setPolicyReminder] = useState(0);
   const [code, setCode] = useState("");
   const [challengeId, setChallengeId] = useState("");
@@ -112,6 +114,8 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
         throw new Error(apiErrorMessage(error, "账户服务暂时不可用"));
       }
       setCsrfToken(data.csrfToken);
+      setPolicyVersions(data.legalPolicies ?? null);
+      setAcceptedPolicies(false);
       setConnected(true);
       setMessage("");
       if (data.account) router.replace("/canvas");
@@ -236,6 +240,10 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
       showPolicyReminder();
       return;
     }
+    if (mode === "register" && !policyVersions) {
+      setMessage("协议版本未能读取，请重新连接后注册。");
+      return;
+    }
     if (!connected || !csrfToken) {
       setMessage("账户服务尚未连接，请刷新页面后重试。");
       return;
@@ -263,6 +271,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
               params,
               body: {
                 method: "phone",
+                policyConsent: { accepted: acceptedPolicies, ...policyVersions! } as PolicyConsent,
                 identity: `+86${normalizedPhone}`,
                 challengeId,
                 code,
@@ -286,6 +295,10 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
                     },
             });
       if (!result.response.ok || !result.data?.account) {
+        if (mode === "register" && result.response.status === 409) {
+          setAcceptedPolicies(false);
+          void connect();
+        }
         throw new Error(
           apiErrorMessage(
             result.error,

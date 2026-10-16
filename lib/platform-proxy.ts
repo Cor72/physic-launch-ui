@@ -1,3 +1,5 @@
+import { isIP } from 'node:net';
+
 const JSON_BODY_LIMIT = 16_384;
 const MULTIPART_BODY_LIMIT = 1_200_000;
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -181,6 +183,7 @@ export async function proxyPlatformRequest(
   request: Request,
   platformOriginValue = process.env.PHYSICS_PLATFORM_ORIGIN,
   upstreamFetch: FetchLike = fetch,
+  forwardClientIp = process.env.NODE_ENV === 'production',
 ): Promise<Response> {
   const sourceUrl = new URL(request.url);
   const pathname = safePathname(request.url);
@@ -196,6 +199,12 @@ export async function proxyPlatformRequest(
   for (const name of rule.allowRequestHeaders) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
+  }
+  // Production launch is private; its public edge overwrites this header.
+  const clientIp = request.headers.get('x-real-ip')?.trim();
+  if (forwardClientIp && clientIp && isIP(clientIp)) {
+    headers.set('x-forwarded-for', clientIp);
+    headers.set('x-real-ip', clientIp);
   }
 
   try {
