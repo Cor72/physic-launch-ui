@@ -20,6 +20,14 @@ const nextConfig = {
     root: dirname(root),
   },
   transpilePackages: ["@physic/api-client", "@physic/contracts"],
+  async headers() {
+    return [{ source: '/payment/alipay/:path*', headers: [
+      { key: 'Cache-Control', value: 'no-store, private' },
+      { key: 'Referrer-Policy', value: 'no-referrer' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+    ] }];
+  },
   async rewrites() {
     return {
       beforeFiles: [

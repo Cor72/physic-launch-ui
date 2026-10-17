@@ -22,6 +22,33 @@ import {
 const platformOrigin = "http://127.0.0.1:14300";
 const operationId = "00000000-0000-4000-8000-000000000001";
 
+test('only the owned payment form route can forward HTML security headers; query strings and other methods stay closed', async () => {
+  const path = '/api/user/v1/billing/orders/PTEST1/alipay-checkout';
+  const csp = "default-src 'none'; script-src 'sha256-test'; form-action https://openapi-sandbox.dl.alipaydev.com; frame-ancestors 'none'";
+  let calls = 0;
+  const upstream = async (_url, init) => {
+    calls++;
+    assert.equal(init.redirect, 'manual');
+    assert.equal(init.headers.get('cookie'), 'physic_user_session=test');
+    assert.equal(init.headers.get('sec-fetch-site'), 'same-origin');
+    return new Response('<form></form>', { headers: { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': csp } });
+  };
+  const response = await proxyPlatformRequest(new Request('http://127.0.0.1:3000' + path, { headers: { cookie: 'physic_user_session=test', 'sec-fetch-site': 'same-origin' } }), platformOrigin, upstream);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-security-policy'), csp);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+  assert.equal(response.headers.get('x-frame-options'), 'DENY');
+  assert.equal(await response.text(), '<form></form>');
+  for (const suffix of ['?x=y', '/extra']) assert.equal((await proxyPlatformRequest(new Request('http://127.0.0.1:3000' + path + suffix), platformOrigin, upstream)).status, 404);
+  assert.equal((await proxyPlatformRequest(new Request('http://127.0.0.1:3000' + path, { method: 'POST' }), platformOrigin, upstream)).status, 405);
+  assert.equal(calls, 1);
+  const unsafe = await proxyPlatformRequest(new Request('http://127.0.0.1:3000' + path), platformOrigin, async () => new Response('<form></form>', { headers: { 'content-type': 'text/html' } }));
+  assert.equal(unsafe.status, 502);
+  assert.equal(isAllowedPlatformRoute('/api/v3/billing/orders/by-number/PTEST1', 'GET'), true);
+  assert.equal(isAllowedPlatformRoute('/api/payments/v1/alipay/notifications', 'POST'), false, 'notification bypasses Next via exact edge location');
+});
+
 test("the private Compose API hostname is allowed without opening arbitrary HTTP origins", async () => {
   const response = await proxyPlatformRequest(
     new Request("http://127.0.0.1:4400/api/v3/auth/bootstrap"),

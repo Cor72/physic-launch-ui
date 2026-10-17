@@ -30,6 +30,7 @@ import {
   publishAuthSessionChange,
   subscribeAuthSessionChanges,
 } from "@/lib/auth-session-sync";
+import { paymentOrderNumber, paymentResultPath } from '@/lib/payment-return';
 import {
   apiErrorMessage,
   createBrowserPlatformClient,
@@ -38,6 +39,7 @@ import {
 interface AuthFormProps {
   mode: "login" | "register";
   intent?: "ai";
+  paymentOrderNo?: string;
 }
 
 type LoginMethod = "password" | "code";
@@ -47,9 +49,11 @@ const subscribeHydration = () => () => undefined;
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
-export function AuthForm({ mode, intent }: AuthFormProps) {
+export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
   const router = useRouter();
   const client = useMemo(() => createBrowserPlatformClient(), []);
+  const paymentOrder = paymentOrderNumber(paymentOrderNo);
+  const successPath = paymentOrder ? paymentResultPath(paymentOrder) : '/canvas';
   const hydrated = useSyncExternalStore(
     subscribeHydration,
     getClientHydrationSnapshot,
@@ -118,7 +122,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
       setAcceptedPolicies(false);
       setConnected(true);
       setMessage("");
-      if (data.account) router.replace("/canvas");
+      if (data.account) router.replace(successPath);
       return true;
     } catch (error) {
       if (generation !== bootstrapGeneration.current) return false;
@@ -139,7 +143,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
         setChecking(false);
       }
     }
-  }, [client, router]);
+  }, [client, router, successPath]);
 
   useEffect(() => {
     let active = true;
@@ -173,7 +177,9 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
   );
 
   const alternatePath = mode === "login" ? "/register" : "/login";
-  const alternateHref = intent
+  const alternateHref = paymentOrder
+    ? `${alternatePath}?paymentOrderNo=${paymentOrder}`
+    : intent
     ? `${alternatePath}?intent=${intent}`
     : alternatePath;
   const cooldown = Math.max(0, Math.ceil((retryAt - now) / 1_000));
@@ -312,7 +318,7 @@ export function AuthForm({ mode, intent }: AuthFormProps) {
       setConfirmPassword("");
       setCode("");
       publishAuthSessionChange();
-      router.replace("/canvas");
+      router.replace(successPath);
     } catch (error) {
       setPassword("");
       setConfirmPassword("");

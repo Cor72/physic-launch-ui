@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AuthForm } from "@/components/auth/auth-form";
+import { paymentOrderNumber } from '@/lib/payment-return';
 
 export const metadata: Metadata = { title: "注册" };
 
@@ -9,6 +10,7 @@ interface RegisterPageProps {
   searchParams: Promise<{
     returnTo?: string | string[];
     intent?: string | string[];
+    paymentOrderNo?: string | string[];
   }>;
 }
 
@@ -20,5 +22,5 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   if (query.returnTo !== undefined) {
     redirect(intent ? "/register?intent=ai" : "/register");
   }
-  return <AuthForm mode="register" intent={intent} />;
+  return <AuthForm mode="register" intent={intent} paymentOrderNo={paymentOrderNumber(query.paymentOrderNo) ?? undefined} />;
 }

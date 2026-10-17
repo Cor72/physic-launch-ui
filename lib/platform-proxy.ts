@@ -31,6 +31,11 @@ const SAFE_RESPONSE_HEADERS = Object.freeze([
   "x-ratelimit-reset",
 ]);
 
+const PAYMENT_HTML_HEADERS = Object.freeze([
+  ...SAFE_RESPONSE_HEADERS, 'content-security-policy', 'referrer-policy',
+  'x-content-type-options', 'x-frame-options',
+]);
+
 export type PlatformRouteRule = Readonly<{
   method: "GET" | "POST" | "PUT";
   pathPattern: RegExp;
@@ -60,6 +65,10 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
   // Public authentication is intentionally exposed only through the v3 phone
   // flow shared with the canvas. The legacy username endpoints stay private.
   route("GET", exact("/api/user/v1/billing/assets")),
+  Object.freeze({
+    ...route('GET', /^\/api\/user\/v1\/billing\/orders\/[A-Za-z0-9_-]{1,32}\/alipay-checkout$/),
+    allowResponseHeaders: PAYMENT_HTML_HEADERS,
+  }),
 
   // Canvas account facade (A1-A8). Unavailable methods still have explicit,
   // side-effect-free platform endpoints; capability flags remain authoritative.
@@ -79,6 +88,7 @@ export const PLATFORM_ROUTE_RULES: readonly PlatformRouteRule[] = Object.freeze(
   route("POST", exact("/api/v3/billing/quotes")),
   route("POST", exact("/api/v3/billing/orders")),
   route("GET", new RegExp(`^/api/v3/billing/orders/${canvasId}$`)),
+  route('GET', /^\/api\/v3\/billing\/orders\/by-number\/[A-Za-z0-9_-]{1,32}$/),
   route("GET", new RegExp(`^/api/v3/billing/order-intents/${uuid}$`)),
   route("GET", exact("/api/v3/billing/records")),
   route("POST", exact("/api/v3/billing/redemptions")),
@@ -192,6 +202,9 @@ export async function proxyPlatformRequest(
   const knownPath = pathExists(pathname);
   if (!rule) return failure(knownPath ? "METHOD_NOT_ALLOWED" : "NOT_FOUND", knownPath ? "请求方法不被允许" : "接口不存在", knownPath ? 405 : 404);
 
+  const paymentHtml = rule.allowResponseHeaders === PAYMENT_HTML_HEADERS;
+  if (paymentHtml && sourceUrl.search) return failure('NOT_FOUND', '接口不存在', 404);
+
   const platformOrigin = resolvePlatformOrigin(platformOriginValue);
   if (!platformOrigin) return failure("PLATFORM_NOT_CONFIGURED", "后台网关尚未正确配置", 503);
 
@@ -221,12 +234,23 @@ export async function proxyPlatformRequest(
 
     if (response.status >= 300 && response.status < 400) return failure("PLATFORM_REDIRECT_REJECTED", "后台网关返回了不允许的重定向", 502);
 
+    if (paymentHtml && response.ok &&
+        (!response.headers.get('content-type')?.toLowerCase().startsWith('text/html') ||
+         !response.headers.get('content-security-policy')?.includes("default-src 'none'"))) {
+      await response.body?.cancel();
+      return failure('PAYMENT_CHECKOUT_FAILED', '支付页面暂不可用', 502);
+    }
     const outputHeaders = new Headers({ "cache-control": "no-store" });
     for (const name of rule.allowResponseHeaders) {
       const value = response.headers.get(name);
       if (value) outputHeaders.set(name, value);
     }
     for (const cookie of response.headers.getSetCookie()) outputHeaders.append("set-cookie", cookie);
+    if (paymentHtml) {
+      outputHeaders.set('referrer-policy', 'no-referrer');
+      outputHeaders.set('x-content-type-options', 'nosniff');
+      outputHeaders.set('x-frame-options', 'DENY');
+    }
 
     return new Response(response.body, { status: response.status, headers: outputHeaders });
   } catch (error) {

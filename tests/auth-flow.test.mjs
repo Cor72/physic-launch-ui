@@ -69,8 +69,10 @@ test("authentication controls cannot accept clicks before hydration and can reco
   );
 });
 
-test("public authentication has one canonical URL and always returns to the canvas", () => {
-  assert.match(authForm, /router\.replace\("\/canvas"\)/);
+test("authentication defaults to canvas with only a validated order lookup continuation", () => {
+  assert.match(authForm, /router\.replace\(successPath\)/);
+  assert.match(authForm, /paymentOrder \? paymentResultPath\(paymentOrder\) : ['"]\/canvas['"]/);
+  assert.match(authForm, /paymentOrderNumber\(paymentOrderNo\)/);
   assert.doesNotMatch(authForm, /returnTo/);
   assert.match(
     loginPage,
