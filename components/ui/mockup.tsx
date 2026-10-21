@@ -3,13 +3,17 @@ import React from "react";
 
 import { cn } from "@/lib/utils";
 
+/* The screen itself. The stock classes stacked three alpha borders
+   (border/70, dark:border/5, dark:border-t/15) to compensate for a dark
+   `--border` that was mixed at 88% lightness; with the token fixed, one
+   hairline is enough. */
 const mockupVariants = cva(
-  "flex relative z-10 overflow-hidden shadow-2xl border border-border/70 dark:border-border/5 dark:border-t-border/15",
+  "relative z-10 flex overflow-hidden border border-line/80 shadow-lg",
   {
     variants: {
       type: {
-        mobile: "rounded-[48px] max-w-[350px]",
-        responsive: "rounded-md",
+        mobile: "max-w-[350px] rounded-[42px]",
+        responsive: "rounded-xl",
       },
     },
     defaultVariants: {
@@ -33,13 +37,15 @@ function Mockup({ className, type, ...props }: MockupProps) {
   );
 }
 
+/* The bezel around the screen — a physical instrument housing rather than a
+   tinted border, so it keeps a visible edge on both themes. */
 const frameVariants = cva(
-  "bg-border/50 flex relative z-10 overflow-hidden rounded-2xl dark:bg-border/10",
+  "relative z-10 flex overflow-hidden rounded-2xl border border-line/70 bg-surface-3/80 dark:bg-surface-2/70",
   {
     variants: {
       size: {
-        small: "p-2",
-        large: "p-4",
+        small: "p-1.5",
+        large: "p-3",
       },
     },
     defaultVariants: {

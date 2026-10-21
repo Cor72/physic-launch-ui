@@ -1,31 +1,25 @@
-import { ArrowRightIcon, BookOpenIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon } from "lucide-react";
 import { ReactNode } from "react";
 
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
-import taskPreview from "@/public/1.png";
-import problemPreview from "@/public/2.png";
 
-import { Badge } from "../../ui/badge";
-import Glow from "../../ui/glow";
+import { InViewMotion } from "../../ui/in-view-motion";
 import { LinkButton, type LinkButtonProps } from "../../ui/link-button";
-import { Mockup, MockupFrame } from "../../ui/mockup";
-import Screenshot from "../../ui/screenshot";
-import { Section } from "../../ui/section";
-import styles from "./hero.module.css";
-import HeroBall from "./hero-ball";
-import PreviewVideo from "./preview-video";
+import { Orbits } from "../../ui/orbits";
+import { Container } from "../../ui/section";
+import { Starfield } from "../../ui/starfield";
+import { BounceTrail } from "./bounce-trail";
 
 interface HeroButtonProps extends Omit<LinkButtonProps, "children"> {
   text: string;
 }
 
 interface HeroProps {
-  title1?: string;
-  title2?: string;
-  description1?: string;
-  description2?: string;
-  mockup?: ReactNode | false;
+  eyebrow?: string;
+  titleLines?: ReactNode[];
+  description?: string;
+  meta?: string[] | false;
   badge?: ReactNode | false;
   buttons?: HeroButtonProps[] | false;
   className?: string;
@@ -35,124 +29,112 @@ const DEFAULT_HERO_BUTTONS: HeroButtonProps[] = [
   {
     href: siteConfig.canvasUrl,
     text: "免费体验画布",
-    variant: "white",
+    variant: "ink",
+    iconRight: <ArrowRightIcon className="size-4" />,
   },
   {
     href: siteConfig.links.pricing,
     text: "查看积分套餐",
-    variant: "glow",
-    icon: <BookOpenIcon className="mr-2 size-4" />,
+    variant: "secondary",
   },
 ];
 
 const DEFAULT_HERO_BADGE = (
-  <Badge variant="outline" className="motion-safe:animate-appear flex-wrap">
-    <span className="text-muted-foreground">在线可用</span>
-    <a href={siteConfig.getStartedUrl} className="flex items-center gap-1">
-      查看实际演示
-      <ArrowRightIcon className="size-3" />
-    </a>
-  </Badge>
+  <span className="border-line inline-flex items-center gap-2 rounded-full border bg-[color-mix(in_oklab,var(--surface-2)_50%,transparent)] py-1 pr-3 pl-2 text-[0.8125rem] backdrop-blur-md">
+    <span aria-hidden="true" className="relative flex size-2">
+      <span className="bg-brand absolute inline-flex size-full rounded-full opacity-60 motion-safe:animate-ping" />
+      <span className="bg-brand relative inline-flex size-2 rounded-full" />
+    </span>
+    <span className="text-ink shrink-0 whitespace-nowrap">在线可用</span>
+    <span aria-hidden="true" className="bg-line-strong h-3 w-px" />
+    <span className="text-ink-muted hidden sm:inline">
+      中学物理 · AI 动态题目可视化
+    </span>
+    <span className="text-ink-muted whitespace-nowrap sm:hidden">
+      AI 物理可视化
+    </span>
+  </span>
 );
 
-const HERO_PREVIEWS = [
-  {
-    name: "tasks",
-    type: "image",
-    srcLight: taskPreview,
-    alt: "星驰视界题目识别页面预览",
-  },
-  {
-    name: "problem",
-    type: "image",
-    srcLight: problemPreview,
-    alt: "滑块沿圆轨道运动的物理题目预览",
-  },
-  {
-    name: "simulation",
-    type: "video",
-  },
-] as const;
+const DEFAULT_HERO_META = [
+  "无需绑定支付方式",
+  "积分长期有效",
+  "一次性购买，不自动续费",
+];
 
-function HeroShowcase() {
-  return (
-    <div className={styles.showcase}>
-      {HERO_PREVIEWS.map((preview) => (
-        <div key={preview.name} className={styles.preview}>
-          <MockupFrame
-            data-hero-preview={preview.name}
-            className={styles.previewFrame}
-            size="small"
-          >
-            {["tl", "tr", "br", "bl"].map((corner) => (
-              <span
-                key={corner}
-                data-hero-corner={corner}
-                className={styles.edgeProbe}
-                aria-hidden="true"
-              />
-            ))}
-            <Mockup
-              type="responsive"
-              className="bg-background w-full rounded-xl border-0"
-            >
-              {preview.type === "video" ? (
-                <PreviewVideo />
-              ) : (
-                <Screenshot
-                  srcLight={preview.srcLight}
-                  alt={preview.alt}
-                  width={preview.srcLight.width}
-                  height={preview.srcLight.height}
-                  loading="eager"
-                  sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1312px) calc(100vw - 224px), 1088px"
-                  className="h-auto w-full"
-                />
-              )}
-            </Mockup>
-          </MockupFrame>
-        </div>
-      ))}
-    </div>
-  );
-}
+const DEFAULT_TITLE_LINES: ReactNode[] = [
+  "让物理题",
+  <>
+    变成<span className="text-gradient">可观察的动态过程</span>
+  </>,
+];
 
 export default function Hero({
-  title1 = "星驰视界",
-  title2 = "让物理题变成可观察的动态过程",
-  description1 = "上传物理题目图片，识别题意并生成可交互的动态画布，直观看见运动、受力与轨迹。",
-  mockup,
+  eyebrow,
+  titleLines = DEFAULT_TITLE_LINES,
+  description = "上传物理题目图片，识别题意并生成可交互的动态画布，直观看见运动、受力与轨迹。",
+  meta = DEFAULT_HERO_META,
   badge = DEFAULT_HERO_BADGE,
   buttons = DEFAULT_HERO_BUTTONS,
   className,
 }: HeroProps) {
   return (
-    <div data-hero-physics-root="" className="relative">
-      <Section
+    /* White introductory panel. */
+    <div
+      data-surface="light"
+      className="bg-surface-1 text-ink border-line relative isolate mx-2 mt-2 overflow-hidden rounded-[28px] border sm:mx-3 sm:mt-3"
+    >
+      <section
         className={cn(
-          "relative isolate overflow-hidden pt-8 pb-0 sm:pt-12 sm:pb-0 md:pt-12 md:pb-0",
+          "relative isolate overflow-hidden px-5 pt-32 pb-16 sm:px-8 sm:pt-40 sm:pb-20",
           className,
         )}
       >
-        <div className="max-w-container mx-auto">
-          <div className="relative z-20 flex max-w-3xl flex-col items-start gap-6 text-left sm:gap-8">
-            {badge !== false && badge}
-            <h1 className="text-foreground motion-safe:animate-appear text-4xl leading-tight font-semibold tracking-tight text-balance sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
-              {title1}
+        <InViewMotion
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_70%_0%,var(--glow-1),transparent_70%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_45%_35%_at_8%_30%,var(--glow-2),transparent_70%)]" />
+          <Starfield
+            seed={7}
+            className="absolute inset-0 size-full opacity-25"
+          />
+          <Orbits
+            id="hero-orbits"
+            className="fade-core absolute -top-[6%] left-[22%] h-[80%] w-[110%] opacity-40 max-md:hidden"
+          />
+          <div className="grid-field fade-radial absolute inset-0 opacity-60" />
+        </InViewMotion>
+
+        <Container>
+          <div className="flex max-w-4xl flex-col items-start gap-7">
+            <div className="motion-safe:animate-appear flex flex-wrap items-center gap-3">
+              {badge !== false && badge}
+              {eyebrow && (
+                <span className="type-label text-ink-muted">{eyebrow}</span>
+              )}
+            </div>
+
+            <h1 className="type-display text-ink motion-safe:animate-appear max-[359px]:text-[1.625rem]">
+              {titleLines.map((line, index) => (
+                <span key={index} className="block">
+                  {line}
+                </span>
+              ))}
             </h1>
-            <h1 className="text-foreground motion-safe:animate-appear text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl sm:leading-tight lg:text-5xl lg:leading-tight">
-              {title2}
-            </h1>
-            <p className="text-muted-foreground motion-safe:animate-appear max-w-[740px] text-base leading-relaxed font-medium motion-safe:opacity-0 motion-safe:delay-100 sm:text-xl sm:leading-relaxed">
-              {description1}
+
+            <p className="type-lede text-ink-muted motion-safe:animate-appear max-w-[34rem] text-balance motion-safe:opacity-0 motion-safe:delay-100">
+              {description}
             </p>
+
             {buttons !== false && buttons.length > 0 && (
-              <div className="motion-safe:animate-appear flex flex-wrap justify-start gap-4 motion-safe:opacity-0 motion-safe:delay-300">
+              <div className="motion-safe:animate-appear flex flex-wrap gap-3 motion-safe:opacity-0 motion-safe:delay-200">
                 {buttons.map((button) => (
                   <LinkButton
                     key={`${button.href}-${button.text}`}
                     variant={button.variant || "default"}
-                    size="lg"
+                    size="xl"
                     href={button.href}
                     icon={button.icon}
                     iconRight={button.iconRight}
@@ -162,35 +144,28 @@ export default function Hero({
                 ))}
               </div>
             )}
-          </div>
-          {mockup !== false && (
-            <div id="demo" className={cn(styles.visual, "scroll-mt-32")}>
-              <div
-                aria-hidden="true"
-                className={cn(styles.glow, "dark:hidden")}
-              />
-              <Glow
-                aria-hidden="true"
-                variant="top"
-                className="pointer-events-none -z-10 hidden opacity-60 dark:block"
-              />
-              {mockup === undefined ? (
-                <HeroShowcase />
-              ) : (
-                <MockupFrame className="relative my-12" size="small">
-                  <Mockup
-                    type="responsive"
-                    className="bg-background/90 w-full rounded-xl border-0"
+
+            {meta !== false && meta.length > 0 && (
+              <ul className="motion-safe:animate-appear text-ink-muted flex flex-wrap items-center gap-x-6 gap-y-2 motion-safe:opacity-0 motion-safe:delay-300">
+                {meta.map((entry) => (
+                  <li
+                    key={entry}
+                    className="flex items-center gap-2 text-[0.8125rem]"
                   >
-                    {mockup}
-                  </Mockup>
-                </MockupFrame>
-              )}
-            </div>
-          )}
-        </div>
-      </Section>
-      {mockup === undefined && <HeroBall />}
+                    <CheckIcon
+                      aria-hidden="true"
+                      className="text-gold size-3.5"
+                    />
+                    {entry}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <BounceTrail className="motion-safe:animate-appear mt-10 motion-safe:opacity-0 motion-safe:delay-500 sm:mt-6" />
+        </Container>
+      </section>
     </div>
   );
 }

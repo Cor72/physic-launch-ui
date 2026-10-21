@@ -1,12 +1,11 @@
-import { type VariantProps } from "class-variance-authority";
 import { type ComponentProps, type ReactNode } from "react";
 
-import { Button, buttonVariants } from "./button";
+import { Button, type ButtonVariantProp } from "./button";
 
 export interface LinkButtonProps {
   href: string;
   children: ReactNode;
-  variant?: VariantProps<typeof buttonVariants>["variant"];
+  variant?: ButtonVariantProp;
   icon?: ReactNode;
   iconRight?: ReactNode;
   size?: ComponentProps<typeof Button>["size"];

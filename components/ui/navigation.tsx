@@ -1,212 +1,124 @@
 "use client";
 
-import Link from "next/link";
-import * as React from "react";
-import { ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
-import LaunchUI from "../logos/launch-ui";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "./navigation-menu";
-
-interface ComponentItem {
+export interface NavigationLink {
   title: string;
-  href: string;
-  description: string;
+  href: `#${string}`;
 }
 
-interface MenuItem {
-  title: string;
-  href?: string;
-  isLink?: boolean;
-  content?: ReactNode;
-}
+/* In page order, so the highlighted link moves in one direction while the
+   visitor scrolls. */
+export const HOME_SECTIONS: readonly NavigationLink[] = [
+  { title: "物理场景", href: siteConfig.links.models as `#${string}` },
+  { title: "使用流程", href: siteConfig.links.workflow as `#${string}` },
+  { title: "产品功能", href: siteConfig.links.features as `#${string}` },
+  { title: "积分套餐", href: siteConfig.links.pricing as `#${string}` },
+  { title: "常见问题", href: siteConfig.links.faq as `#${string}` },
+];
 
 interface NavigationProps {
-  menuItems?: MenuItem[];
-  components?: ComponentItem[];
-  logo?: ReactNode;
-  logoTitle?: string;
-  logoDescription?: string;
-  logoHref?: string;
-  introItems?: {
-    title: string;
-    href: string;
-    description: string;
-  }[];
+  links?: readonly NavigationLink[];
+  className?: string;
+}
+
+/* Tracks which section sits under the navbar: the last one whose top has
+   crossed a line a third of the way down the viewport. */
+function useActiveSection(links: readonly NavigationLink[]) {
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    const targets = links
+      .map((link) => document.getElementById(link.href.slice(1)))
+      .filter((node): node is HTMLElement => node !== null);
+    if (targets.length === 0) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight / 3;
+      let current: string | null = null;
+      for (const target of targets) {
+        const rect = target.getBoundingClientRect();
+        if (rect.top <= line && rect.bottom > 0) current = `#${target.id}`;
+      }
+      setActive(current);
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [links]);
+
+  return active;
 }
 
 export default function Navigation({
-  menuItems = [
-    {
-      title: "认识平台",
-      content: "default",
-    },
-    {
-      title: "核心功能",
-      content: "components",
-    },
-    {
-      title: "积分套餐",
-      isLink: true,
-      href: siteConfig.links.pricing,
-    },
-  ],
-  components = [
-    {
-      title: "题目图片输入",
-      href: siteConfig.links.features,
-      description: "上传清晰题目图片，让平台识别题意、物体和已知条件。",
-    },
-    {
-      title: "题意与条件识别",
-      href: siteConfig.links.features,
-      description: "梳理题目中的运动阶段，并在生成前核对关键信息。",
-    },
-    {
-      title: "动态画布生成",
-      href: siteConfig.getStartedUrl,
-      description: "把题目转化为可播放、可观察的动态物理场景。",
-    },
-    {
-      title: "运动过程观察",
-      href: siteConfig.links.features,
-      description: "播放、暂停和回看，观察运动、受力与轨迹。",
-    },
-    {
-      title: "画布编辑",
-      href: siteConfig.links.features,
-      description: "在画布中调整对象与参数，对照原题继续探索。",
-    },
-    {
-      title: "账户与记录",
-      href: siteConfig.canvasUrl,
-      description: "登录后管理积分，并查看账户中的使用记录。",
-    },
-  ],
-  logo = <LaunchUI />,
-  logoTitle = siteConfig.name,
-  logoDescription = "把抽象物理题转化为可观察、可操作的动态过程。",
-  logoHref = siteConfig.getStartedUrl,
-  introItems = [
-    {
-      title: "免费体验",
-      href: siteConfig.getStartedUrl,
-      description: "无需付费即可进入画布，体验当前开放的基础功能。",
-    },
-    {
-      title: "使用流程",
-      href: siteConfig.links.workflow,
-      description: "了解从上传题目到观察动态过程的完整路径。",
-    },
-    {
-      title: "适用场景",
-      href: siteConfig.links.models,
-      description: "查看平抛、斜面、圆周、弹簧与带电粒子等场景。",
-    },
-  ],
-}: NavigationProps) {
-  return (
-    <NavigationMenu aria-label="主导航" className="hidden md:flex">
-      <NavigationMenuList>
-        {menuItems.map((item) => (
-          <NavigationMenuItem key={item.title}>
-            {item.isLink ? (
-              <NavigationMenuLink
-                className={navigationMenuTriggerStyle()}
-                asChild
-              >
-                <Link href={item.href || ""}>{item.title}</Link>
-              </NavigationMenuLink>
-            ) : (
-              <>
-                <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  {item.content === "default" ? (
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <a
-                            className="from-muted/30 to-muted/10 flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-6 no-underline outline-hidden select-none focus:shadow-md"
-                            href={logoHref}
-                          >
-                            {logo}
-                            <div className="mt-4 mb-2 text-lg font-medium">
-                              {logoTitle}
-                            </div>
-                            <p className="text-muted-foreground text-sm leading-tight">
-                              {logoDescription}
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      {introItems.map((intro) => (
-                        <ListItem
-                          key={intro.title}
-                          href={intro.href}
-                          title={intro.title}
-                        >
-                          {intro.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  ) : item.content === "components" ? (
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {components.map((component) => (
-                        <ListItem
-                          key={component.title}
-                          title={component.title}
-                          href={component.href}
-                        >
-                          {component.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  ) : (
-                    item.content
-                  )}
-                </NavigationMenuContent>
-              </>
-            )}
-          </NavigationMenuItem>
-        ))}
-      </NavigationMenuList>
-    </NavigationMenu>
-  );
-}
-
-function ListItem({
+  links = HOME_SECTIONS,
   className,
-  title,
-  children,
-  ...props
-}: React.ComponentProps<"a"> & { title: string }) {
+}: NavigationProps) {
+  const active = useActiveSection(links);
+  const listRef = useRef<HTMLUListElement>(null);
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(
+    null,
+  );
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => {
+      const link = active
+        ? list.querySelector<HTMLElement>(`a[href="${active}"]`)
+        : null;
+      setPill(link ? { left: link.offsetLeft, width: link.offsetWidth } : null);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [active]);
+
   return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          data-slot="list-item"
+    <nav aria-label="页面导航" className={className}>
+      <ul ref={listRef} className="relative flex items-center gap-0.5">
+        <span
+          aria-hidden="true"
           className={cn(
-            "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline outline-hidden transition-colors select-none",
-            className,
+            "bg-surface-3 border-line-subtle absolute inset-y-0 rounded-full border transition-[left,width,opacity] duration-300 ease-out motion-reduce:transition-none",
+            pill ? "opacity-100" : "opacity-0",
           )}
-          {...props}
-        >
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
+          style={pill ? { left: pill.left, width: pill.width } : undefined}
+        />
+        {links.map((link) => {
+          const current = active === link.href;
+          return (
+            <li key={link.href} className="relative">
+              <a
+                href={link.href}
+                aria-current={current ? "location" : undefined}
+                className={cn(
+                  "relative block rounded-full px-3.5 py-1.5 text-[0.8125rem] font-medium transition-colors xl:px-4",
+                  "focus-visible:ring-ring/40 outline-none focus-visible:ring-2",
+                  current ? "text-ink" : "text-ink-muted hover:text-ink",
+                )}
+              >
+                {link.title}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

@@ -5,25 +5,23 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border border-border/100 dark:border-border/20 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 gap-2",
+  "inline-flex items-center gap-2 rounded-full text-[0.75rem] font-medium tracking-[-0.004em] transition-colors",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground dark:shadow-sm dark:border-transparent",
-        brand:
-          "border-transparent bg-brand text-primary-foreground dark:shadow-sm dark:border-transparent",
-        "brand-secondary":
-          "border-transparent bg-brand-foreground/20 text-brand dark:border-transparent",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground dark:shadow-sm dark:border-transparent",
+        default: "bg-brand text-primary-foreground",
+        brand: "bg-brand text-primary-foreground",
+        "brand-secondary": "bg-brand-muted text-brand",
+        secondary: "bg-surface-3 text-ink-muted",
         destructive:
-          "border-transparent bg-destructive/30 text-destructive-foreground dark:shadow-sm dark:border-transparent",
-        outline: "text-foreground",
+          "border-destructive/25 bg-destructive/10 text-destructive-foreground border",
+        /* The page's default chip: a hairline capsule on the raised
+           surface. Reads as a control, not a label sticker. */
+        outline: "border-line bg-surface-2 text-ink-muted border shadow-sm",
       },
       size: {
-        default: "px-2.5 py-1",
-        sm: "px-1",
+        default: "px-3 py-1",
+        sm: "px-2 py-0.5 text-[0.6875rem]",
       },
     },
     defaultVariants: {

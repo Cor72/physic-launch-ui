@@ -24,7 +24,6 @@ import {
 
 import LaunchUI from "@/components/logos/launch-ui";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/mode-toggle";
 import { siteConfig } from "@/config/site";
 import {
   publishAuthSessionChange,
@@ -49,11 +48,23 @@ const subscribeHydration = () => () => undefined;
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
+/* The four fields on this form had each been styled inline, and had drifted
+   apart: two used focus-within, two focus-visible, and the ring colour and
+   border token differed between them. Shared here so every field in the
+   form focuses and fills identically. */
+const fieldShell =
+  "flex h-11 items-center rounded-lg border border-line bg-surface-1 transition-[border-color,box-shadow] focus-within:border-brand/50 focus-within:ring-2 focus-within:ring-ring/25";
+
+const fieldInput =
+  "text-ink placeholder:text-ink-faint h-full min-w-0 flex-1 bg-transparent px-3 text-base outline-none sm:text-[0.9375rem]";
+
+const fieldLabel = "grid gap-2 text-[0.8125rem] font-medium text-ink";
+
 export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
   const router = useRouter();
-  const client = useMemo(() => createBrowserPlatformClient(), []);
   const paymentOrder = paymentOrderNumber(paymentOrderNo);
   const successPath = paymentOrder ? paymentResultPath(paymentOrder) : '/canvas';
+  const client = useMemo(() => createBrowserPlatformClient(), []);
   const hydrated = useSyncExternalStore(
     subscribeHydration,
     getClientHydrationSnapshot,
@@ -118,10 +129,10 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
         throw new Error(apiErrorMessage(error, "账户服务暂时不可用"));
       }
       setCsrfToken(data.csrfToken);
-      setPolicyVersions(data.legalPolicies ?? null);
-      setAcceptedPolicies(false);
       setConnected(true);
       setMessage("");
+      setPolicyVersions(data.legalPolicies ?? null);
+      setAcceptedPolicies(false);
       if (data.account) router.replace(successPath);
       return true;
     } catch (error) {
@@ -337,52 +348,61 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
         : "验证手机号并设置密码。新账户初始积分为 0，手动搭建可直接使用。";
 
   return (
-    <main className="bg-background text-foreground relative isolate min-h-[100dvh] overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+    <main className="bg-background text-foreground relative isolate min-h-[100dvh] overflow-x-hidden px-5 py-6 sm:px-8">
       {policyReminder ? (
         <div
           key={policyReminder}
-          className="border-primary/25 bg-card text-foreground motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:zoom-in-95 fixed top-5 left-1/2 z-50 flex w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium shadow-xl shadow-orange-950/10 motion-safe:duration-200"
+          className="border-brand/25 bg-surface-2 text-ink motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 motion-safe:zoom-in-95 fixed top-5 left-1/2 z-50 flex w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-2 rounded-xl border px-4 py-3 text-[0.8125rem] font-medium shadow-lg motion-safe:duration-200"
           role="alert"
           aria-live="assertive"
         >
-          <MessageSquareText className="text-primary size-4 shrink-0" />
+          <MessageSquareText className="text-brand size-4 shrink-0" />
           <span>请先勾选并同意用户协议、隐私政策及积分规则</span>
         </div>
       ) : null}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,color-mix(in_oklab,var(--brand)_15%,transparent),transparent_32%),radial-gradient(circle_at_80%_85%,color-mix(in_oklab,var(--brand)_9%,transparent),transparent_28%)]" />
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between">
+      {/* Calibrated field plus one warm bloom, matching the marketing
+          pages. The stock background stacked two hard-stopped radials at
+          20%/15% and 80%/85%, which banded across the card edges. */}
+      <div
+        aria-hidden="true"
+        className="grid-field fade-radial pointer-events-none absolute inset-0 -z-10"
+      />
+      <div
+        aria-hidden="true"
+        className="from-brand/10 pointer-events-none absolute -top-32 left-1/4 -z-10 h-80 w-[40rem] -translate-x-1/2 rounded-[50%] bg-radial to-transparent to-70% blur-2xl"
+      />
+
+      <header className="max-w-container mx-auto flex w-full items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 text-lg font-semibold"
+          className="text-ink flex items-center gap-2.5 text-[0.9375rem] font-semibold tracking-[-0.014em]"
         >
           <LaunchUI />
           {siteConfig.name}
         </Link>
-        <ThemeToggle />
       </header>
 
-      <section className="mx-auto grid min-h-[calc(100dvh-5rem)] w-full max-w-6xl items-center gap-12 py-10 md:grid-cols-[minmax(0,1fr)_440px]">
+      <section className="max-w-container mx-auto grid min-h-[calc(100dvh-5rem)] w-full items-center gap-16 py-10 md:grid-cols-[minmax(0,1fr)_26.5rem]">
         <div className="hidden max-w-xl md:block">
-          <p className="text-brand mb-5 text-sm font-semibold">
+          <p className="type-label text-brand mb-5">
             AI 动态题目可视化学习平台
           </p>
-          <h1 className="text-4xl leading-tight font-semibold tracking-tight lg:text-6xl">
-            把抽象题目，变成看得见的物理过程
+          <h1 className="type-h1 text-ink">
+            <span className="block">把抽象题目，</span>
+            <span className="block">变成看得见的物理过程</span>
           </h1>
-          <p className="text-muted-foreground mt-6 max-w-[52ch] text-lg leading-relaxed">
+          <p className="type-lede text-ink-muted mt-6 max-w-[46ch]">
             从受力、运动到轨迹，在同一张画布中搭建、观察并验证物理情境。
           </p>
         </div>
 
-        <div className="border-border bg-card/95 rounded-2xl border p-6 shadow-xl shadow-orange-950/5 backdrop-blur-sm sm:p-8">
-          <div className="mb-6">
-            <div className="bg-primary/10 text-primary mb-5 grid size-11 place-items-center rounded-xl">
+        <div className="border-line bg-surface-2 rounded-2xl border p-6 shadow-lg sm:p-8">
+          <div className="mb-7">
+            <div className="border-line bg-surface-3 text-brand mb-5 grid size-10 place-items-center rounded-lg border">
               {mode === "login" ? <LockKeyhole /> : <UserRound />}
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
-            <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-              {description}
-            </p>
+            <h2 className="type-h2 text-ink">{title}</h2>
+            <p className="type-copy-sm text-ink-muted mt-2.5">{description}</p>
           </div>
 
           <fieldset
@@ -392,14 +412,14 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
           >
             {mode === "login" ? (
               <div
-                className="bg-muted mb-5 grid grid-cols-2 rounded-lg p-1"
+                className="border-line bg-surface-3 mb-5 grid grid-cols-2 gap-1 rounded-lg border p-1"
                 aria-label="选择登录方式"
               >
                 {(["password", "code"] as const).map((method) => (
                   <button
                     key={method}
                     type="button"
-                    className={`min-h-9 rounded-md px-3 text-sm font-medium transition-colors ${loginMethod === method ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                    className={`min-h-8 rounded-md px-3 text-[0.8125rem] font-medium transition-colors ${loginMethod === method ? "bg-surface-2 text-ink border-line border shadow-sm" : "text-ink-muted hover:text-ink"}`}
                     aria-pressed={loginMethod === method}
                     onClick={() => {
                       setLoginMethod(method);
@@ -414,17 +434,17 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
             ) : null}
 
             <form className="space-y-4" onSubmit={submit} noValidate={false}>
-              <label className="grid gap-2 text-sm font-medium">
+              <label className={fieldLabel}>
                 手机号
-                <span className="border-input bg-background focus-within:ring-ring flex h-11 items-center rounded-md border focus-within:ring-2">
+                <span className={fieldShell}>
                   <span
-                    className="text-muted-foreground border-input border-r px-3"
+                    className="text-ink-faint border-line numeral border-r px-3 text-[0.8125rem]"
                     aria-hidden="true"
                   >
                     +86
                   </span>
                   <input
-                    className="text-foreground placeholder:text-muted-foreground h-full min-w-0 flex-1 bg-transparent px-3 outline-none"
+                    className={`${fieldInput} numeral`}
                     autoComplete="tel-national"
                     inputMode="tel"
                     maxLength={11}
@@ -438,11 +458,11 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
               </label>
 
               {verificationMode ? (
-                <label className="grid gap-2 text-sm font-medium">
+                <label className={fieldLabel}>
                   验证码
-                  <span className="border-input bg-background focus-within:ring-ring flex h-11 items-center rounded-md border focus-within:ring-2">
+                  <span className={fieldShell}>
                     <input
-                      className="text-foreground placeholder:text-muted-foreground h-full min-w-0 flex-1 bg-transparent px-3 outline-none"
+                      className={`${fieldInput} numeral`}
                       autoComplete="one-time-code"
                       inputMode="numeric"
                       maxLength={6}
@@ -458,7 +478,7 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                     />
                     <button
                       type="button"
-                      className="text-primary border-input h-7 shrink-0 border-l px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                      className="text-brand border-line hover:bg-surface-3 h-full shrink-0 border-l px-3 text-[0.8125rem] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                       disabled={
                         busy ||
                         checking ||
@@ -468,18 +488,22 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                       }
                       onClick={() => void sendCode()}
                     >
-                      {cooldown > 0 ? `${cooldown} 秒后重发` : "获取验证码"}
+                      {cooldown > 0 ? (
+                        <span className="numeral">{cooldown} 秒后重发</span>
+                      ) : (
+                        "获取验证码"
+                      )}
                     </button>
                   </span>
                 </label>
               ) : null}
 
               {mode === "register" || loginMethod === "password" ? (
-                <label className="grid gap-2 text-sm font-medium">
+                <label className={fieldLabel}>
                   {mode === "register" ? "设置密码" : "密码"}
-                  <span className="relative">
+                  <span className={`${fieldShell} relative`}>
                     <input
-                      className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring h-11 w-full rounded-md border px-3 pr-11 outline-none focus-visible:ring-2"
+                      className={`${fieldInput} pr-11`}
                       type={showPassword ? "text" : "password"}
                       autoComplete={
                         mode === "login" ? "current-password" : "new-password"
@@ -496,7 +520,7 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                     />
                     <button
                       type="button"
-                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 focus-visible:ring-2 focus-visible:outline-none"
+                      className="text-ink-faint hover:text-ink absolute top-1/2 right-0 grid size-11 -translate-y-1/2 place-items-center rounded-md transition-colors"
                       aria-label={showPassword ? "隐藏密码" : "显示密码"}
                       onClick={() => setShowPassword((value) => !value)}
                     >
@@ -507,31 +531,33 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
               ) : null}
 
               {mode === "register" ? (
-                <label className="grid gap-2 text-sm font-medium">
+                <label className={fieldLabel}>
                   确认密码
-                  <input
-                    className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring h-11 rounded-md border px-3 outline-none focus-visible:ring-2"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    minLength={8}
-                    maxLength={128}
-                    placeholder="再次输入密码"
-                    required
-                    value={confirmPassword}
-                    onChange={(event) => {
-                      setConfirmPassword(event.target.value);
-                      setMessage("");
-                    }}
-                  />
+                  <span className={fieldShell}>
+                    <input
+                      className={fieldInput}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      minLength={8}
+                      maxLength={128}
+                      placeholder="再次输入密码"
+                      required
+                      value={confirmPassword}
+                      onChange={(event) => {
+                        setConfirmPassword(event.target.value);
+                        setMessage("");
+                      }}
+                    />
+                  </span>
                 </label>
               ) : null}
 
               {mode === "register" ? (
-                <div className="border-border bg-muted/35 flex items-start gap-3 rounded-lg border p-3">
+                <div className="border-line bg-surface-3/60 flex items-start gap-3 rounded-lg border p-3.5">
                   <input
                     ref={policyInput}
                     id="accept-policies"
-                    className="accent-primary mt-0.5 size-4 shrink-0"
+                    className="accent-brand mt-0.5 size-4 shrink-0"
                     type="checkbox"
                     aria-required="true"
                     checked={acceptedPolicies}
@@ -541,12 +567,12 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                       setMessage("");
                     }}
                   />
-                  <p className="text-muted-foreground text-xs leading-relaxed">
+                  <p className="text-ink-muted text-xs leading-[1.7]">
                     <label htmlFor="accept-policies" className="cursor-pointer">
                       我已阅读并同意
                     </label>
                     <Link
-                      className="text-foreground underline underline-offset-2"
+                      className="text-ink decoration-line-strong hover:decoration-brand underline decoration-1 underline-offset-2 transition-colors"
                       href={siteConfig.links.terms}
                       target="_blank"
                       rel="noreferrer"
@@ -555,7 +581,7 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                     </Link>
                     、
                     <Link
-                      className="text-foreground underline underline-offset-2"
+                      className="text-ink decoration-line-strong hover:decoration-brand underline decoration-1 underline-offset-2 transition-colors"
                       href={siteConfig.links.privacy}
                       target="_blank"
                       rel="noreferrer"
@@ -564,7 +590,7 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
                     </Link>
                     及
                     <Link
-                      className="text-foreground underline underline-offset-2"
+                      className="text-ink decoration-line-strong hover:decoration-brand underline decoration-1 underline-offset-2 transition-colors"
                       href={siteConfig.links.pointsPolicy}
                       target="_blank"
                       rel="noreferrer"
@@ -577,10 +603,10 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
 
               {!hydrated || checking ? (
                 <p
-                  className="text-muted-foreground flex items-center gap-2 text-sm"
+                  className="text-ink-faint flex items-center gap-2 text-[0.8125rem]"
                   role="status"
                 >
-                  <MessageSquareText className="size-4" />
+                  <MessageSquareText className="size-4 shrink-0" />
                   {!hydrated
                     ? "正在加载登录功能。"
                     : "正在确认登录状态，已登录将自动进入画布。"}
@@ -589,7 +615,7 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
 
               {message ? (
                 <p
-                  className={`rounded-md border px-3 py-2 text-sm ${message.startsWith("验证码已发送") ? "border-primary/25 bg-primary/5 text-foreground" : "border-destructive/30 bg-destructive/10 text-destructive"}`}
+                  className={`rounded-lg border px-3.5 py-2.5 text-[0.8125rem] leading-relaxed ${message.startsWith("验证码已发送") ? "border-brand/30 bg-brand-muted text-ink" : "border-destructive/30 bg-destructive/10 text-destructive-foreground"}`}
                   role="status"
                 >
                   {message}
@@ -597,7 +623,8 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
               ) : null}
 
               <Button
-                className="h-11 w-full active:scale-[0.98]"
+                className="mt-1 h-11 w-full"
+                size="lg"
                 type={connected ? "submit" : "button"}
                 disabled={busy || checking || !hydrated}
                 onClick={connected ? undefined : () => void connect()}
@@ -616,22 +643,22 @@ export function AuthForm({ mode, intent, paymentOrderNo }: AuthFormProps) {
             </form>
           </fieldset>
 
-          <div className="border-border mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-5 text-sm">
+          <div className="border-line-subtle mt-7 flex flex-wrap items-center justify-between gap-3 border-t pt-5 text-[0.8125rem]">
             <Link
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+              className="text-ink-muted hover:text-ink inline-flex items-center gap-1 transition-colors"
               href="/"
             >
-              <ArrowLeft /> 返回首页
+              <ArrowLeft className="size-3.5" /> 返回首页
             </Link>
             <Link
-              className="text-primary font-medium hover:underline"
+              className="text-brand font-medium hover:underline"
               href={alternateHref}
             >
               {mode === "login" ? "没有账户？立即注册" : "已有账户？直接登录"}
             </Link>
           </div>
           <Link
-            className="text-muted-foreground hover:text-foreground mt-5 block text-center text-sm"
+            className="text-ink-faint hover:text-ink mt-5 block text-center text-[0.8125rem] transition-colors"
             href="/canvas"
           >
             暂不登录，游客体验手动画布

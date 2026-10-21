@@ -61,6 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    /* Keep the white theme even if an earlier visit saved a dark preference. */
     <html
       lang="zh-CN"
       className="light"
@@ -71,7 +72,8 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <TrafficVisitTracker />

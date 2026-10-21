@@ -1,3 +1,4 @@
+import { MailIcon, MessageCircleQuestionIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -9,7 +10,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../../ui/accordion";
-import { Section } from "../../ui/section";
+import {
+  Container,
+  Eyebrow,
+  Section,
+  SectionHeader,
+  SectionTitle,
+} from "../../ui/section";
 
 interface FAQItemProps {
   question: string;
@@ -19,14 +26,21 @@ interface FAQItemProps {
 
 interface FAQProps {
   title?: string;
+  eyebrow?: string;
+  figure?: string;
   items?: FAQItemProps[] | false;
   className?: string;
 }
 
-const answerClassName = "text-muted-foreground mb-4 max-w-[680px] leading-relaxed";
+const answerClassName = "type-copy text-ink-muted max-w-measure";
+
+const inlineLinkClassName =
+  "text-ink decoration-line-strong underline decoration-1 underline-offset-4 transition-colors hover:decoration-brand";
 
 export default function FAQ({
   title = "购买和使用前，你可能想了解",
+  eyebrow = "常见问题",
+  figure = "05",
   items = [
     {
       question: "星驰视界提供什么服务？",
@@ -49,7 +63,10 @@ export default function FAQ({
       answer: (
         <p className={answerClassName}>
           数字服务具有即时交付和消耗的特点。付费积分一旦使用，除法律另有规定或平台原因导致服务无法提供外，原则上不支持无理由退款。付费积分完全未使用、重复扣款、支付后未到账等情况，可以联系客服核查处理。完整条件请查看
-          <Link className="text-foreground underline" href={siteConfig.links.pointsPolicy}>
+          <Link
+            className={inlineLinkClassName}
+            href={siteConfig.links.pointsPolicy}
+          >
             《积分购买及退款规则》
           </Link>
           。
@@ -68,7 +85,8 @@ export default function FAQ({
       question: "购买后如何申请发票？",
       answer: (
         <p className={answerClassName}>
-          如需开具发票，请保留订单信息，并通过客服邮箱 {siteConfig.supportEmail} 或客服电话 {siteConfig.supportPhone} 联系我们办理。
+          如需开具发票，请保留订单信息，并通过客服邮箱 {siteConfig.supportEmail}{" "}
+          或客服电话 {siteConfig.supportPhone} 联系我们办理。
         </p>
       ),
     },
@@ -77,7 +95,7 @@ export default function FAQ({
       answer: (
         <p className={answerClassName}>
           平台仅在提供账户、题目处理、订单和安全保障等服务所需范围内处理信息。上传题目图片前，请遮盖姓名、学校、联系方式等与题目无关的个人信息。详细说明和用户权利见
-          <Link className="text-foreground underline" href={siteConfig.links.privacy}>
+          <Link className={inlineLinkClassName} href={siteConfig.links.privacy}>
             《隐私政策》
           </Link>
           。
@@ -97,24 +115,70 @@ export default function FAQ({
 }: FAQProps) {
   return (
     <Section id="faq" className={className}>
-      <div className="max-w-container mx-auto flex flex-col items-center gap-8">
-        <h2 className="text-center text-3xl font-semibold sm:text-5xl">
-          {title}
-        </h2>
+      {/* Two columns on wide screens: the heading and support details hold
+          a sticky left rail while the answers scroll past. */}
+      <Container className="grid gap-12 lg:grid-cols-[minmax(0,21rem)_1fr] lg:gap-20">
+        <div className="flex flex-col gap-8 lg:sticky lg:top-28 lg:self-start">
+          <SectionHeader>
+            <Eyebrow index={figure}>{eyebrow}</Eyebrow>
+            {/* Narrow rail: step the display size down so the title breaks
+                between words rather than mid-phrase. */}
+            <SectionTitle className="type-h2 lg:max-w-[19rem]">
+              {title}
+            </SectionTitle>
+          </SectionHeader>
+
+          <div className="glass flex flex-col gap-4 rounded-3xl p-5">
+            <div className="flex items-center gap-3">
+              <span className="bg-brand-muted text-brand grid size-9 place-items-center rounded-full">
+                <MessageCircleQuestionIcon className="size-4.5" />
+              </span>
+              <div className="flex flex-col">
+                <span className="text-ink text-[0.9375rem] font-medium">没有找到答案？</span>
+                <span className="text-ink-faint text-[0.8125rem]">客服会在核实信息后尽快回复</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <a
+                href={`mailto:${siteConfig.supportEmail}`}
+                className="hover:bg-surface-3 text-ink-muted hover:text-ink -mx-2 flex items-center gap-3 rounded-xl px-2 py-2 text-[0.875rem] transition-colors"
+              >
+                <MailIcon className="text-ink-faint size-4" />
+                {siteConfig.supportEmail}
+              </a>
+              <a
+                href={`tel:${siteConfig.supportPhone}`}
+                className="hover:bg-surface-3 text-ink-muted hover:text-ink -mx-2 flex items-center gap-3 rounded-xl px-2 py-2 text-[0.875rem] transition-colors"
+              >
+                <PhoneIcon className="text-ink-faint size-4" />
+                <span className="numeral">{siteConfig.supportPhone}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
         {items !== false && items.length > 0 && (
-          <Accordion type="single" collapsible className="w-full max-w-[800px]">
+          <Accordion type="single" collapsible className="w-full">
             {items.map((item, index) => (
               <AccordionItem
                 key={item.value ?? item.question}
                 value={item.value || `item-${index + 1}`}
               >
-                <AccordionTrigger>{item.question}</AccordionTrigger>
-                <AccordionContent>{item.answer}</AccordionContent>
+                <AccordionTrigger>
+                  <span className="flex items-baseline gap-4">
+                    <span className="type-label numeral text-ink-faint w-6 shrink-0">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span>{item.question}</span>
+                  </span>
+                </AccordionTrigger>
+                {/* Indented to the question text, past the index column. */}
+                <AccordionContent className="pl-10">{item.answer}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
         )}
-      </div>
+      </Container>
     </Section>
   );
 }
