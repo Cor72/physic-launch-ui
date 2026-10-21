@@ -12,7 +12,6 @@ COPY physic-platform/packages/api-client/package.json ./packages/api-client/pack
 COPY physic-platform/packages/contracts/package.json ./packages/contracts/package.json
 COPY physic-platform/packages/provider-adapters/package.json ./packages/provider-adapters/package.json
 COPY physic-platform/packages/resource-schema/package.json ./packages/resource-schema/package.json
-COPY physic-platform/packages/shared/package.json ./packages/shared/package.json
 
 RUN npm ci
 
