@@ -1,0 +1,49 @@
+FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS build
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /workspace/physic-platform
+
+COPY physic-platform/package.json physic-platform/package-lock.json physic-platform/tsconfig.base.json ./
+COPY physic-platform/apps/admin-web/package.json ./apps/admin-web/package.json
+COPY physic-platform/apps/api/package.json ./apps/api/package.json
+COPY physic-platform/apps/worker/package.json ./apps/worker/package.json
+COPY physic-platform/packages/api-client/package.json ./packages/api-client/package.json
+COPY physic-platform/packages/contracts/package.json ./packages/contracts/package.json
+COPY physic-platform/packages/provider-adapters/package.json ./packages/provider-adapters/package.json
+COPY physic-platform/packages/resource-schema/package.json ./packages/resource-schema/package.json
+
+RUN npm ci
+
+COPY physic-platform/packages/contracts ./packages/contracts
+COPY physic-platform/packages/api-client ./packages/api-client
+RUN npm run build --workspace @physic/contracts \
+  && npm run build --workspace @physic/api-client
+
+WORKDIR /workspace/physic-launch-ui
+COPY physic-launch-ui/package.json physic-launch-ui/package-lock.json ./
+RUN npm ci
+COPY physic-launch-ui ./
+
+ARG NEXT_PUBLIC_SITE_URL
+ARG PHYSICS_CANVAS_ORIGIN=http://canvas:8080
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
+  PHYSICS_CANVAS_ORIGIN=${PHYSICS_CANVAS_ORIGIN}
+RUN npm run build
+
+FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS runtime
+
+ENV NODE_ENV=production \
+  NEXT_TELEMETRY_DISABLED=1 \
+  HOSTNAME=0.0.0.0 \
+  PORT=3000
+
+WORKDIR /app
+
+COPY --from=build --chown=node:node /workspace/physic-launch-ui/.next/standalone ./
+COPY --from=build --chown=node:node /workspace/physic-launch-ui/.next/static ./physic-launch-ui/.next/static
+COPY --from=build --chown=node:node /workspace/physic-launch-ui/public ./physic-launch-ui/public
+
+USER node
+EXPOSE 3000
+CMD ["node", "physic-launch-ui/server.js"]

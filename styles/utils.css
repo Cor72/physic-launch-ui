@@ -1,21 +1,255 @@
-/* Glass effects */
-@utility glass-1 {
-  @apply border-border from-card/80 to-card/40 dark:border-border/10 dark:border-b-border/5 dark:border-t-border/20 dark:from-card/5 dark:to-card/0 border bg-linear-to-b;
-}
-@utility glass-2 {
-  @apply border-border from-card/100 to-card/80 dark:border-border/10 dark:border-b-border/5 dark:border-t-border/20 dark:from-card/10 dark:to-card/5 border bg-linear-to-b;
-}
-@utility glass-3 {
-  @apply border-border from-card/30 to-card/20 dark:border-border/10 dark:border-t-border/20 dark:border-b-border/5 dark:from-primary/5 dark:to-primary/2 border bg-linear-to-b;
-}
-@utility glass-4 {
-  @apply border-border border-b-input/90 from-card/60 to-card/20 dark:border-border/10 dark:border-t-border/30 dark:from-primary/10 dark:to-primary/5 border bg-linear-to-b dark:border-b-0;
-}
-@utility glass-5 {
-  @apply border-border border-b-input from-card/100 to-card/20 dark:border-border/10 dark:border-t-border/30 dark:from-primary/15 dark:to-primary/5 border bg-linear-to-b dark:border-b-0;
+/* ===========================================================================
+   Type scale
+   Tracking stays gentler than a Latin-only scale: CJK glyphs sit on a
+   fixed em square, so the -0.04em that flatters Latin display type jams
+   Chinese headlines together.
+   ======================================================================== */
+
+@utility type-display {
+  /* Sized so the longest hero line (10 CJK glyphs) still fits the 304px
+     text column of a 360px phone inside the inset band. */
+  font-size: clamp(1.875rem, 0.6rem + 5.4vw, 5.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  font-weight: 600;
 }
 
-/* Fade effects */
+@utility type-h1 {
+  font-size: clamp(1.875rem, 1.1rem + 2.6vw, 3.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+@utility type-h2 {
+  font-size: clamp(1.375rem, 1rem + 1.2vw, 1.875rem);
+  line-height: 1.24;
+  letter-spacing: -0.016em;
+  font-weight: 600;
+}
+
+@utility type-h3 {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+}
+
+@utility type-lede {
+  font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.25rem);
+  line-height: 1.66;
+  letter-spacing: -0.008em;
+}
+
+@utility type-copy {
+  font-size: 1rem;
+  line-height: 1.72;
+  letter-spacing: -0.005em;
+}
+
+@utility type-copy-sm {
+  font-size: 0.9375rem;
+  line-height: 1.66;
+  letter-spacing: -0.004em;
+}
+
+@utility type-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+@utility numeral {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "ss03";
+}
+
+/* Ink fading into the two logo accents. */
+@utility text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--text-primary) 0%,
+    var(--text-primary) 22%,
+    var(--brand) 62%,
+    var(--gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===========================================================================
+   Surfaces
+   ======================================================================== */
+
+/* Raised panel: translucent so glows behind it read through, with a 1px
+   top highlight standing in for the light source above. */
+@utility glass {
+  background-color: color-mix(in oklab, var(--surface-2) 74%, transparent);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 0 var(--highlight),
+    var(--shadow-md);
+}
+
+/* A gradient hairline drawn by the border box itself, so it follows the
+   radius exactly. */
+@utility border-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--surface-2), var(--surface-2)) padding-box,
+    linear-gradient(
+        150deg,
+        var(--brand) 0%,
+        var(--line) 38%,
+        var(--line) 62%,
+        var(--gold) 100%
+      )
+      border-box;
+}
+
+/* Pointer-following light. Coordinates are written by <Spotlight>. */
+@utility spotlight {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    background: radial-gradient(
+      420px circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      color-mix(in oklab, var(--brand) 13%, transparent),
+      transparent 62%
+    );
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ===========================================================================
+   Instrument field
+   ======================================================================== */
+
+@utility grid-field {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: center center;
+}
+
+@utility grid-field-fine {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size:
+    var(--grid-size) var(--grid-size),
+    var(--grid-size) var(--grid-size),
+    calc(var(--grid-size) / 4) calc(var(--grid-size) / 4),
+    calc(var(--grid-size) / 4) calc(var(--grid-size) / 4);
+  background-position: center center;
+}
+
+@utility grid-dots {
+  background-image: radial-gradient(var(--line-strong) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: center center;
+}
+
+@utility rule-ticks {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--line-strong) 0 1px,
+    transparent 1px 8px
+  );
+}
+
+@utility hairline-live {
+  position: relative;
+  overflow: hidden;
+}
+@utility hairline-live-beam {
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--brand) 40%,
+    var(--gold) 60%,
+    transparent
+  );
+}
+
+/* Hairline that fades out at both ends. */
+@utility rule-fade {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--line-strong) 20%,
+    var(--line-strong) 80%,
+    transparent
+  );
+}
+
+/* Progressive enhancement: sections rise in as they enter the viewport
+   where scroll-driven animations exist, and are simply present elsewhere. */
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================================================
+   Glass (legacy names, used by shadcn wrappers)
+   ======================================================================== */
+
+@utility glass-1 {
+  @apply border-line from-surface-2/80 to-surface-2/40 border bg-linear-to-b;
+}
+@utility glass-2 {
+  @apply border-line from-surface-2 to-surface-2/70 border bg-linear-to-b;
+}
+@utility glass-3 {
+  @apply border-line from-surface-3/70 to-surface-2/40 border bg-linear-to-b;
+}
+@utility glass-4 {
+  @apply border-line from-surface-3 to-surface-2/60 border bg-linear-to-b;
+}
+@utility glass-5 {
+  @apply border-line-strong from-surface-3 to-surface-3/70 border bg-linear-to-b;
+}
+
+/* ===========================================================================
+   Masks
+   ======================================================================== */
+
 @utility fade-x {
   mask-image: linear-gradient(
     to right,
@@ -58,25 +292,52 @@
 @utility fade-right-lg {
   mask-image: linear-gradient(to left, transparent 15%, black 100%);
 }
+@utility fade-radial {
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 40%,
+    black 20%,
+    transparent 78%
+  );
+}
+@utility fade-edges {
+  mask-image: radial-gradient(
+    ellipse 80% 75% at 50% 50%,
+    black 45%,
+    transparent 100%
+  );
+}
+/* Holds a decorative layer back where headline copy sits, without erasing it
+   entirely: the orbit rings stay continuous, they just recede behind type. */
+@utility fade-core {
+  mask-image: radial-gradient(
+    ellipse 46% 42% at 50% 44%,
+    rgb(0 0 0 / 0.14) 0%,
+    black 78%
+  );
+}
+
+/* ===========================================================================
+   Hairlines
+   ======================================================================== */
 
 @utility line-y {
-  @apply border-border dark:border-border/10;
+  @apply border-line-subtle;
   border-width: 0 var(--line-width, 0);
 }
 
 @utility line-x {
-  @apply border-border dark:border-border/10;
+  @apply border-line-subtle;
   border-width: var(--line-width, 0) 0;
 }
 
 @utility line-b {
-  @apply border-border dark:border-border/10;
+  @apply border-line-subtle;
   border-width: 0 0 var(--line-width, 0);
 }
 
 @utility line-t {
-  @apply border-border dark:border-border/10;
-  border-width: var(--line-width, 0) 0;
+  @apply border-line-subtle;
+  border-width: var(--line-width, 0) 0 0;
 }
 
 @utility line-dashed {

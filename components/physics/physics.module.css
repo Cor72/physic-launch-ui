@@ -1,0 +1,459 @@
+/* ===========================================================================
+   Every scene loops on its own clock. Durations and keyframe offsets are
+   paired with constants in the matching component; change them together.
+   ======================================================================== */
+
+/* --- Projectile: 4.8s cycle, flight 0–70%, eight equal exposures -------- */
+
+.flightX {
+  animation: flight-x 4.8s linear infinite;
+}
+.flightY {
+  animation: flight-y 4.8s infinite;
+}
+.flightFade {
+  animation: flight-fade 4.8s linear infinite;
+}
+.vyShaft {
+  transform-origin: 0 0;
+  animation: vy-shaft 4.8s linear infinite;
+}
+.vyHead {
+  animation: vy-head 4.8s linear infinite;
+}
+.progress {
+  transform-origin: left center;
+  animation: progress 4.8s linear infinite;
+}
+
+@keyframes flight-x {
+  0% {
+    transform: translateX(0);
+  }
+  70%,
+  100% {
+    transform: translateX(var(--flight-x));
+  }
+}
+
+/* cubic-bezier(1/3, 0, 2/3, 1/3) is exactly y = t², so with a linear x the
+   ball traces a true parabola rather than an eased approximation. */
+@keyframes flight-y {
+  0% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.333, 0, 0.667, 0.333);
+  }
+  70%,
+  100% {
+    transform: translateY(var(--flight-y));
+  }
+}
+
+@keyframes flight-fade {
+  0% {
+    opacity: 0;
+  }
+  1.5%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* v_y grows linearly with time. */
+@keyframes vy-shaft {
+  0% {
+    transform: scaleY(0);
+  }
+  70%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes vy-head {
+  0% {
+    transform: translateY(calc(var(--vy-length) * -1));
+  }
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes progress {
+  0% {
+    transform: scaleX(0);
+  }
+  70%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.exposure {
+  animation-duration: 4.8s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.exposure0 {
+  animation-name: exposure-0;
+}
+.exposure1 {
+  animation-name: exposure-1;
+}
+.exposure2 {
+  animation-name: exposure-2;
+}
+.exposure3 {
+  animation-name: exposure-3;
+}
+.exposure4 {
+  animation-name: exposure-4;
+}
+.exposure5 {
+  animation-name: exposure-5;
+}
+.exposure6 {
+  animation-name: exposure-6;
+}
+.exposure7 {
+  animation-name: exposure-7;
+}
+.exposure8 {
+  animation-name: exposure-8;
+}
+
+/* Exposure n fires at 70% × n/8 of the cycle — the moment the ball passes. */
+@keyframes exposure-0 {
+  0% {
+    opacity: 0;
+  }
+  0.8%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-1 {
+  0%,
+  8.75% {
+    opacity: 0;
+  }
+  9.55%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-2 {
+  0%,
+  17.5% {
+    opacity: 0;
+  }
+  18.3%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-3 {
+  0%,
+  26.25% {
+    opacity: 0;
+  }
+  27.05%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-4 {
+  0%,
+  35% {
+    opacity: 0;
+  }
+  35.8%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-5 {
+  0%,
+  43.75% {
+    opacity: 0;
+  }
+  44.55%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-6 {
+  0%,
+  52.5% {
+    opacity: 0;
+  }
+  53.3%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-7 {
+  0%,
+  61.25% {
+    opacity: 0;
+  }
+  62.05%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes exposure-8 {
+  0%,
+  70% {
+    opacity: 0;
+  }
+  70.8%,
+  86% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- Incline: 4.4s cycle, slide 0–72% --------------------------------- */
+
+.slideFade {
+  animation: slide-fade 4.4s linear infinite;
+}
+.slide {
+  animation: slide 4.4s infinite;
+}
+
+@keyframes slide-fade {
+  0% {
+    opacity: 0;
+  }
+  4%,
+  84% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Constant acceleration down the slope: the same t² curve as free fall. */
+@keyframes slide {
+  0% {
+    transform: translate(0, 0);
+    animation-timing-function: cubic-bezier(0.333, 0, 0.667, 0.333);
+  }
+  72%,
+  100% {
+    transform: translate(var(--slide-x), var(--slide-y));
+  }
+}
+
+/* --- Circular: uniform rotation, counter-clockwise (positive ω) --------- */
+
+.spin {
+  transform-origin: var(--spin-origin);
+  animation: spin 7s linear infinite reverse;
+}
+/* Cancels the parent's rotation so labels stay upright. */
+.counterSpin {
+  transform-origin: 0 0;
+  animation: spin 7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Spring: simple harmonic, 3.2s period ------------------------------ */
+
+/* cubic-bezier(0.37, 0, 0.63, 1) is the standard sine ease, so position is
+   a cosine of time to within a fraction of a pixel.
+
+   The base transforms hold the −A pose: with motion reduced the scene is a
+   still of maximum compression, where the full rightward force arrow is
+   correct. At rest at O the force would have to be zero. */
+.coil {
+  transform-origin: var(--coil-origin);
+  transform: scaleX(var(--coil-min));
+  animation: coil 1.6s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+.oscillate {
+  transform: translateX(calc(var(--amplitude) * -1));
+  animation: oscillate 1.6s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+.restoring {
+  transform-origin: var(--force-origin);
+  animation: restoring 1.6s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+.traceX {
+  animation: trace-x 3.2s linear infinite;
+}
+.traceY {
+  animation: trace-y 1.6s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+
+@keyframes coil {
+  from {
+    transform: scaleX(var(--coil-min));
+  }
+  to {
+    transform: scaleX(var(--coil-max));
+  }
+}
+@keyframes oscillate {
+  from {
+    transform: translateX(calc(var(--amplitude) * -1));
+  }
+  to {
+    transform: translateX(var(--amplitude));
+  }
+}
+/* F = −kx: full and rightward at −A, zero at O, full and leftward at +A. */
+@keyframes restoring {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(-1);
+  }
+}
+@keyframes trace-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--trace-width));
+  }
+}
+@keyframes trace-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--trace-height) * -1));
+  }
+}
+
+/* --- Magnetic: 5.2s cycle; straight 0–25%, half circle to 65%, straight
+   to 90%. The legs are 102 units and the arc π·52 ≈ 163, so these offsets
+   keep the speed constant, as it must be: the magnetic force does no work.
+   ----------------------------------------------------------------------- */
+
+.turn {
+  transform-origin: var(--turn-origin);
+  animation: turn 5.2s linear infinite;
+}
+.travel {
+  animation: travel 5.2s linear infinite;
+}
+.lorentz {
+  animation: lorentz 5.2s linear infinite;
+}
+
+@keyframes turn {
+  0%,
+  25% {
+    transform: rotate(0deg);
+  }
+  65%,
+  100% {
+    transform: rotate(-180deg);
+  }
+}
+
+/* Under the half-turn, travelling further along local x carries the
+   particle back out of the field on the opposite heading. */
+@keyframes travel {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(var(--leg));
+  }
+  65% {
+    transform: translateX(var(--leg));
+  }
+  88% {
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(calc(var(--leg) * 2));
+  }
+  96% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(calc(var(--leg) * 2));
+    opacity: 0;
+  }
+}
+
+/* The Lorentz force only exists inside the field. */
+@keyframes lorentz {
+  0%,
+  24.5% {
+    opacity: 0;
+  }
+  25.5%,
+  64.5% {
+    opacity: 1;
+  }
+  65.5%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Moving parts are dropped under reduced motion; what remains is the
+   complete static diagram. */
+@media (prefers-reduced-motion: reduce) {
+  .motionOnly {
+    display: none;
+  }
+}

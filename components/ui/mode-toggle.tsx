@@ -17,16 +17,21 @@ export function ThemeToggle() {
   return (
     <Button
       type="button"
-      variant="outline"
-      size="icon"
-      className="shrink-0"
+      variant="ghost"
+      size="icon-sm"
+      className="text-ink-faint hover:text-ink size-10 shrink-0"
       title="切换明暗主题"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
-      <MoonIcon aria-hidden="true" className="dark:hidden" />
-      <SunIcon aria-hidden="true" className="hidden dark:block" />
-      <span className="sr-only dark:hidden">切换到深色模式</span>
-      <span className="sr-only hidden dark:inline">切换到浅色模式</span>
+      {/* Keyed off the page theme on <html>, not the nearest `.dark`: the
+          navbar turns dark over night-sky bands, and the icon must still
+          describe the page. */}
+      <MoonIcon aria-hidden="true" className="[html.dark_&]:hidden" />
+      <SunIcon aria-hidden="true" className="hidden [html.dark_&]:block" />
+      <span className="sr-only [html.dark_&]:hidden">切换到深色模式</span>
+      <span className="sr-only hidden [html.dark_&]:inline">
+        切换到浅色模式
+      </span>
     </Button>
   );
 }

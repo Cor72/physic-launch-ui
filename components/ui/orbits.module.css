@@ -1,0 +1,42 @@
+/* The base transforms park each planet on the near side of its ring, so a
+   reduced-motion still shows it on the orbit rather than at the centre. */
+.planetX {
+  transform: translateX(var(--rx));
+  animation: orbit-x var(--half) cubic-bezier(0.37, 0, 0.63, 1) infinite
+    alternate;
+}
+
+/* A quarter period out of phase with x, so the pair traces the ellipse. */
+.planetY {
+  animation: orbit-y var(--half) cubic-bezier(0.37, 0, 0.63, 1) infinite
+    alternate;
+  animation-delay: calc(var(--half) / -2);
+}
+
+@keyframes orbit-x {
+  from {
+    transform: translateX(calc(var(--rx) * -1));
+  }
+  to {
+    transform: translateX(var(--rx));
+  }
+}
+
+/* Dimmer on the far side of the orbit. */
+@keyframes orbit-y {
+  from {
+    transform: translateY(calc(var(--ry) * -1));
+    opacity: 0.3;
+  }
+  to {
+    transform: translateY(var(--ry));
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planetX,
+  .planetY {
+    animation: none;
+  }
+}

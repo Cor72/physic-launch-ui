@@ -7,20 +7,19 @@ import Logos from "../components/sections/logos/default";
 import Navbar from "../components/sections/navbar/default";
 import Pricing from "../components/sections/pricing/default";
 import Stats from "../components/sections/stats/default";
-import { LayoutLines } from "../components/ui/layout-lines";
 
 export default function Home() {
   return (
+    /* All sections share a white theme. overflow-x-clip keeps the FAQ rail sticky. */
     <main
       id="home"
-      className="bg-background text-foreground min-h-screen w-full"
+      className="bg-background text-foreground min-h-[100dvh] w-full overflow-x-clip pb-2 sm:pb-3"
     >
-      <LayoutLines />
       <Navbar />
       <Hero />
       <Logos />
-      <Items />
       <Stats />
+      <Items />
       <Pricing />
       <FAQ />
       <CTA />

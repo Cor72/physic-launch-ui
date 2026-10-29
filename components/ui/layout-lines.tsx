@@ -2,14 +2,21 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function LayoutLines({ className, ...props }: React.ComponentProps<"section">) {
+/* Dashed guides on the content container's edges — the margin rules of a
+   drafting sheet. Held back until lg: on a narrow viewport they land inside
+   the text block instead of framing it. */
+function LayoutLines({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <section
-      className={cn("pointer-events-none fixed inset-0 top-0", className)}
+    <div
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none fixed inset-0 z-0 hidden lg:block",
+        className,
+      )}
       {...props}
     >
-      <div className="max-w-container line-y line-dashed mx-auto flex h-full flex-col"></div>
-    </section>
+      <div className="max-w-container line-y line-dashed mx-auto h-full" />
+    </div>
   );
 }
 

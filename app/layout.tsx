@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
+import { TrafficVisitTracker } from "@/components/traffic-visit-tracker";
 import { inter } from "@/lib/fonts";
 
 import { siteConfig } from "../config/site";
@@ -24,10 +25,10 @@ export const metadata: Metadata = {
   ],
   authors: [
     {
-      name: "悟言视界团队",
+      name: siteConfig.operator,
     },
   ],
-  creator: "悟言视界团队",
+  creator: siteConfig.operator,
   openGraph: {
     type: "website",
     locale: "zh_CN",
@@ -60,6 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    /* Keep the white theme even if an earlier visit saved a dark preference. */
     <html
       lang="zh-CN"
       className="light"
@@ -70,9 +72,11 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
+          <TrafficVisitTracker />
           {children}
         </ThemeProvider>
       </body>

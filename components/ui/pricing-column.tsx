@@ -1,21 +1,23 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { CircleCheckBig } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { Button } from "./button";
+import { Button, type ButtonVariantProp } from "./button";
+import { Spotlight } from "./spotlight";
 
 const pricingColumnVariants = cva(
-  "max-w-container relative flex flex-col gap-6 overflow-hidden rounded-2xl p-8 shadow-xl",
+  "relative flex flex-col overflow-hidden rounded-3xl border p-7 transition-[border-color,box-shadow] duration-300 sm:p-8",
   {
     variants: {
       variant: {
-        default: "glass-1 to-transparent dark:glass-3",
-        glow: "glass-2 to-transparent dark:glass-3 after:content-[''] after:absolute after:-top-[128px] after:left-1/2 after:h-[128px] after:w-[100%] after:max-w-[960px] after:-translate-x-1/2 after:rounded-[50%] dark:after:bg-foreground/30 after:blur-[72px]",
-        "glow-brand":
-          "glass-3 from-card/100 to-card/100 dark:glass-4 after:content-[''] after:absolute after:-top-[128px] after:left-1/2 after:h-[128px] after:w-[100%] after:max-w-[960px] after:-translate-x-1/2 after:rounded-[50%] after:bg-brand-foreground/70 after:blur-[72px]",
+        default:
+          "border-line bg-surface-2 text-ink shadow-sm hover:border-line-strong hover:shadow-lg",
+        /* A blue hairline marks the recommendation on the same white card. */
+        featured:
+          "border-brand/40 bg-surface-2 text-ink ring-1 ring-brand/10 shadow-lg",
       },
     },
     defaultVariants: {
@@ -36,8 +38,9 @@ export interface PricingColumnProps
   originalPrice?: number;
   promotionText?: ReactNode;
   priceNote: string;
+  featuredLabel?: string;
   cta: {
-    variant: "glow" | "default" | "white";
+    variant?: ButtonVariantProp;
     label: string;
     href: string;
   };
@@ -49,95 +52,129 @@ export function PricingColumn({
   icon,
   description,
   price,
-  billingPeriod = "/月",
+  billingPeriod,
   originalPrice,
   promotionText,
   priceNote,
+  featuredLabel = "推荐",
   cta,
   features,
   variant,
   className,
   ...props
 }: PricingColumnProps) {
+  const isFeatured = variant === "featured";
+  const discounted =
+    originalPrice !== undefined && originalPrice > 0 && price !== originalPrice;
+
   return (
-    <div
-      className={cn(pricingColumnVariants({ variant, className }))}
+    <Spotlight
+      className={cn(pricingColumnVariants({ variant }), className)}
       {...props}
     >
-      <hr
-        className={cn(
-          "via-foreground/60 absolute top-0 left-[10%] h-[1px] w-[80%] border-0 bg-linear-to-r from-transparent to-transparent",
-          variant === "glow-brand" && "via-brand",
-        )}
-      />
-      <div className="flex flex-col gap-7">
-        <header className="flex flex-col gap-2">
-          <h2 className="flex items-center gap-2 font-bold">
+      {isFeatured && (
+        <>
+          <span
+            aria-hidden="true"
+            className="hairline-live absolute inset-x-0 top-0 h-px"
+          >
+            <span className="via-brand/50 absolute inset-0 bg-linear-to-r from-transparent to-transparent" />
+            <span className="hairline-live-beam motion-safe:animate-sweep absolute inset-y-0 w-1/2 motion-reduce:hidden" />
+          </span>
+        </>
+      )}
+
+      <header className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="type-h3 text-ink flex items-center gap-2.5">
             {icon && (
-              <div className="text-muted-foreground flex items-center gap-2">
+              <span
+                className={cn(
+                  "grid size-8 place-items-center rounded-full border",
+                  isFeatured
+                    ? "border-gold/35 bg-gold-muted text-gold"
+                    : "border-line bg-surface-3 text-ink-muted",
+                )}
+              >
                 {icon}
-              </div>
+              </span>
             )}
             {name}
-          </h2>
-          <p className="text-muted-foreground max-w-[220px] text-sm">
-            {description}
-          </p>
-        </header>
-        <section className="flex flex-col gap-3">
-          {originalPrice !== undefined && (
-            <div className="flex h-6 items-baseline gap-1">
-              <span className="text-muted-foreground text-lg font-medium line-through">
-                {originalPrice > 0 && price !== originalPrice
-                  ? `¥${originalPrice}`
-                  : ""}
-              </span>
-            </div>
+          </h3>
+          {isFeatured && (
+            <span className="border-gold/35 bg-gold-muted text-gold rounded-full border px-2.5 py-0.5 text-[0.75rem] font-medium">
+              {featuredLabel}
+            </span>
           )}
-          <div className="flex items-center gap-3 lg:flex-col lg:items-start xl:flex-row xl:items-center">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-baseline gap-1">
-                <span className="text-muted-foreground text-2xl font-bold">
-                  ¥
-                </span>
-                <span className="text-6xl font-bold">{price}</span>
-              </div>
-            </div>
-            <div className="flex min-h-[40px] flex-col">
-              <span className="text-sm">{billingPeriod}</span>
-              <span className="text-muted-foreground text-sm">
-                {price > 0 ? "会员方案预览" : "无需付费"}
-              </span>
-            </div>
-          </div>
-          {promotionText && (
-            <div className="text-brand-foreground h-6 text-sm font-medium">
-              {promotionText}
-            </div>
-          )}
-        </section>
-        <Button variant={cta.variant} size="lg" asChild>
-          <Link href={cta.href}>{cta.label}</Link>
-        </Button>
-        <p className="text-muted-foreground min-h-[40px] max-w-[220px] text-sm">
-          {priceNote}
+        </div>
+        {/* Reserves two lines so the price row aligns across the grid. */}
+        <p className="type-copy-sm text-ink-muted min-h-[3.32em]">
+          {description}
         </p>
-        <hr className="border-input" />
+      </header>
+
+      <div className="mt-6 flex flex-col gap-1">
+        {discounted && (
+          <span className="numeral text-ink-faint text-sm line-through">
+            ¥{originalPrice}
+          </span>
+        )}
+        <div className="flex items-end gap-1.5">
+          <span className="text-ink-muted mb-1.5 text-xl font-medium">¥</span>
+          <span className="numeral text-ink text-[3.75rem] leading-[0.92] font-semibold tracking-[-0.045em]">
+            {price}
+          </span>
+          {billingPeriod && (
+            <span className="text-ink-faint mb-1 ml-1.5 text-[0.8125rem]">
+              {billingPeriod}
+            </span>
+          )}
+        </div>
+        {promotionText && (
+          <span className="text-gold text-sm font-medium">{promotionText}</span>
+        )}
       </div>
-      <div>
-        <ul className="flex flex-col gap-2">
-          {features.map((feature, index) => (
-            <li
-              key={`${feature}-${index}`}
-              className="flex items-center gap-2 text-sm"
+
+      <Button
+        variant={cta.variant ?? (isFeatured ? "ink" : "secondary")}
+        size="lg"
+        className="mt-7 w-full"
+        asChild
+      >
+        <Link href={cta.href}>{cta.label}</Link>
+      </Button>
+
+      <p className="text-ink-faint mt-3.5 min-h-[3.2em] text-[0.8125rem] leading-[1.6]">
+        {priceNote}
+      </p>
+
+      <div aria-hidden="true" className="rule-fade my-5" />
+
+      <ul className="flex flex-col gap-3">
+        {features.map((feature, index) => (
+          <li
+            key={`${feature}-${index}`}
+            className="type-copy-sm text-ink-muted flex items-start gap-3"
+          >
+            <span
+              className={cn(
+                "mt-[0.2em] grid size-[1.1rem] shrink-0 place-items-center rounded-full",
+                isFeatured
+                  ? "bg-gold-muted text-gold"
+                  : "bg-brand-muted text-brand",
+              )}
             >
-              <CircleCheckBig className="text-muted-foreground size-4 shrink-0" />
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+              <CheckIcon
+                aria-hidden="true"
+                className="size-3"
+                strokeWidth={2.5}
+              />
+            </span>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+    </Spotlight>
   );
 }
 
