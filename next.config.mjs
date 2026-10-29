@@ -19,7 +19,6 @@ const nextConfig = {
   turbopack: {
     root: dirname(root),
   },
-  transpilePackages: ["@physic/api-client", "@physic/contracts"],
   async headers() {
     return [{ source: '/payment/alipay/:path*', headers: [
       { key: 'Cache-Control', value: 'no-store, private' },

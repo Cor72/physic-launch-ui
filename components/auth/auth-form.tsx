@@ -1,6 +1,5 @@
 "use client";
 
-import type { PolicyConsent } from '@physic/contracts';
 import {
   ArrowLeft,
   ArrowRight,
@@ -30,6 +29,7 @@ import {
   subscribeAuthSessionChanges,
 } from "@/lib/auth-session-sync";
 import { paymentOrderNumber, paymentResultPath } from '@/lib/payment-return';
+import type { PolicyConsent } from "@/lib/platform-contracts";
 import {
   apiErrorMessage,
   createBrowserPlatformClient,

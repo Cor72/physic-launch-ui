@@ -1,4 +1,4 @@
-import type { OpenApiComponents } from "@physic/contracts";
+import type { OpenApiComponents } from "./platform-contracts";
 
 export type PaymentOrder = OpenApiComponents["schemas"]["CanvasBillingOrder"];
 export type PaymentPhase =

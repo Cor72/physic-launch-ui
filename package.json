@@ -12,8 +12,6 @@
     "test:integration": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/auth-flow.test.mjs tests/platform-proxy.test.mjs tests/production-build.test.mjs tests/routing.test.mjs tests/payment-return.test.mjs"
   },
   "dependencies": {
-    "@physic/api-client": "file:../physic-platform/packages/api-client",
-    "@physic/contracts": "file:../physic-platform/packages/contracts",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

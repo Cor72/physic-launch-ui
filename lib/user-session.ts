@@ -1,5 +1,5 @@
-import { createPlatformApiClient } from "@physic/api-client";
-import type { OpenApiComponents } from "@physic/contracts";
+import { createPlatformApiClient } from "./platform-api-client";
+import type { OpenApiComponents } from "./platform-contracts";
 
 export type UserSession = OpenApiComponents["schemas"]["UserPrincipal"];
 
